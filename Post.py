@@ -1,6 +1,8 @@
 from enum import Enum
 
 class PostType(Enum):
+    #List of all possible topics
+    
     Nothing = 0
     Technology = 1
     Physics = 2
@@ -9,11 +11,16 @@ class PostType(Enum):
     #...
     
 class PostTopics(object):
+    #Keeps track of the topics
+    
     primaryTopic = PostType.Nothing
     secondaryTopic = PostType.Nothing
     thirdTopic = PostType.Nothing
 
 class Post(object):
+    #Has post information, like topics is is about
+    #and who sent it
+    
     topics = PostTopics()
     senderID = 1234567890
     
