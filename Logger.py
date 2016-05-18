@@ -1,9 +1,9 @@
-***
+"""
 Logger.py
 
 Anytime there would be a print statement we will send it to the log
 Can allow logs to go to a file or other place
-***
+"""
 
 class Logger(object):
     def __init__(self, model, log_type="Console", options = {}):
