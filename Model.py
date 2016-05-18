@@ -1,6 +1,6 @@
-***
+"""
 Overall simulation manager that carries variables and settings that will change the model
-***
+"""
 
 from Environment import *
 from Creature import *
@@ -12,7 +12,7 @@ import unittest
 
 class Model(object):
     def __init__(self, conf = {}):
-        ***
+"""
         self.grid_size        = conf['grid_size']          if 'grid_size' in conf          else 100
         self.veg_den          = conf['vegitation_density'] if 'vegitation_density' in conf else .3
         self.creature_den     = conf['creature_density']   if 'creature_density' in conf   else .08
@@ -23,7 +23,7 @@ class Model(object):
         
         self.delta_t = 1 / float(self.steps_day)
         self.analytics = AR.AnalyticsReporting(self)
-        ***
+"""
         self.logger = L.Logger(self)
 
     def run_simulation(self):
