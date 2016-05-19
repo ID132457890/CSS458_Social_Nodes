@@ -36,7 +36,7 @@ class Person(object):
         self.ID = ID
         
     def evaluatePost(self, post):
-        likeness = self.personality.evaluatePost(post)
+        likeness = self.personality.evaluatePost(self, post)
         
         if post.senderID in self.connectedPeople:
             self.connectedPeople[post.senderID] += likeness

@@ -14,9 +14,8 @@ class PersonsManager(object):
     def createManager():
         PersonsManager.sharedManager = PersonsManager()
     
-    def addPerson(self):
-        person = PE.Person(PE.Position(4, N.random.randint(-2, 2)), ID=self.increasingID)
-        print(person.position.x)
+    def addPerson(self, position):
+        person = PE.Person(PE.Position(position.x, position.y), ID=self.increasingID)
         
         self.people.append(person)
         self.increasingID += 1

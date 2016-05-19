@@ -14,7 +14,7 @@ class Personality(object):
     postPreference = 0.20
     
     maxDistance = 5
-    topics = {1:3, 2:-4}
+    topics = {1:3, 2:4}
     
     def __init__(self):
         pass
