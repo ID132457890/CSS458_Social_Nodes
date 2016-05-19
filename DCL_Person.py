@@ -41,6 +41,14 @@ class Person(object):
                     self.affinity_map[message.poster] += affinity_delta
                 else:
                     self.affinity_map[message.poster] = affinity_delta
+
+                poster_affinity = self.affinity_map[message.poster]
+                if poster_affinity >= self.friends_affinity:
+                    if message.poster not in self.friends:
+                        self.friends.add(messsage.poster)
+                elif poster_affinity <= self.enemies_affinity:
+                    if message.poster not in self.enemies:
+                        self.enemies.add(messsage.poster)
         else:
             # ignore message
             pass
