@@ -8,7 +8,7 @@ Can allow logs to go to a file or other place
 class Logger(object):
     def __init__(self, model, log_type="Console", options = {}):
         self.model = model
-        self._loggers = [eval("Logger" + log_type)(options)]
+        self._loggers = [eval("Logger" + log_type)(options = options)]
 
     def add_logger(self, log_type, options):
         self._loggers.append(eval("Logger" + log_type)(options))

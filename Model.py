@@ -5,32 +5,43 @@ Overall simulation manager that carries variables and settings that will change 
 import Logger as L
 import unittest
 import DCL_Person as Person
+import DCL_Personality as Personality
 import math
+import random
 
 class Model(object):
-    def __init__(self, num_agents = 100, topics = 100, friend_thresh = 5, enemy_thresh = -5):
-        self.logger = L.Logger(self)
+    def __init__(self, num_agents = 100, topics = 100, friend_thresh = 5, enemy_thresh = -5,
+                 time_to_run = 3):
+        self.logger = L.Logger(self, options = {'threshold': 1})
         self.agents = []
         self.num_agents = num_agents
         self.topics = topics
         self.friend_thresh = friend_thresh
         self.enemy_thresh = enemy_thresh
+        self.time_to_run = time_to_run
 
         self.spawn_agents(num_agents)
 
     def run_simulation(self):
 
-        for x in range (self.sim_length * self.steps_day):
-            for agent in self.env.agents:
+        for x in range (self.time_to_run):
+            for agent in self.agents:
                 agent.take_turn()
             #self.analytics.round_analyze()
 
         # Report any interesting statistiscs, etc
-        self.analytics.finish_analyze()
+        # self.analytics.finish_analyze()
 
     def spawn_agents(self, num_agents):
         for x in range(num_agents):
-            self.agents.append(Person.Person(self))
+            self.agents.append(Person.Person(self, personality = Personality.Personality))
+
+        # seed some friends just by random for now
+        for x in range(len(self.agents)):
+            friend_to_add = None
+            while friend_to_add is None or friend_to_add == x:
+                friend_to_add = random.randint(0, len(self.agents) - 1)
+            self.agents[x].friends.append(self.agents[friend_to_add])
 
 def find_distance(agent1, agent2):
     """
