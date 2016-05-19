@@ -1,7 +1,8 @@
 import random
+import DCL_Personality as Personality
 
 class Person(object):
-    def __init__(self, location = None, friends_affinity = 5, enemies_affinity = -5,
+    def __init__(self, model, location = None, friends_affinity = 5, enemies_affinity = -5,
                  personality = None):
         self.affinity_map = {}
         self.friends = []
@@ -10,11 +11,14 @@ class Person(object):
         self.enemies_affinity = enemies_affinity
         self.previous_post_seen = None
         self.personality = personality
+        self.model = model
 
         if location is None:
             self.location = (random.randint(-180, 180), random.randint(-80, 80))
 
     def take_turn(self):
+        # decide to create a post or not
+        self.decay_relationships()
         pass
 
     def create_post(self):
@@ -41,3 +45,21 @@ class Person(object):
     def dispatch_post(self, post):
         for friend in self.friends:
             friend.process_post(post)
+
+    def decay_relationships(self):
+        """
+        Reduces the amount of like/dislike for people who are not friends or unfriended,
+        in that way over time, people "forget about" people that they don't really know well
+        :return: nothing
+        """
+        affect_magnitude = 0.95 # these settings need to be moved somewhere more centalized
+        removal_thresh = 0.05
+
+        known_people = self.affinity_map.keys()
+        people_to_affect = [x for x in known_people if known_people not in self.friends
+                            and known_people not in self.enemies]
+
+        for person in people_to_affect:
+            self.affinity_map[person] *= affect_magnitude
+            if abs(self.affinity_map[person]) < removal_thresh:
+                del self.affinity_map[person]

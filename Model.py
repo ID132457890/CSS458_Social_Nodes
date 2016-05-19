@@ -8,10 +8,13 @@ import DCL_Person as Person
 import math
 
 class Model(object):
-    def __init__(self, num_agents = 100):
+    def __init__(self, num_agents = 100, topics = 100, friend_thresh = 5, enemy_thresh = -5):
         self.logger = L.Logger(self)
         self.agents = []
         self.num_agents = num_agents
+        self.topics = topics
+        self.friend_thresh = friend_thresh
+        self.enemy_thresh = enemy_thresh
 
         self.spawn_agents(num_agents)
 
@@ -27,7 +30,7 @@ class Model(object):
 
     def spawn_agents(self, num_agents):
         for x in range(num_agents):
-            self.agents.append(Person.Person())
+            self.agents.append(Person.Person(self))
 
 def find_distance(agent1, agent2):
     """
