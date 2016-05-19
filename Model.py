@@ -2,56 +2,52 @@
 Overall simulation manager that carries variables and settings that will change the model
 """
 
-from Environment import *
-from Creature import *
-import AnalyticsReporting as AR
 import Logger as L
 import unittest
-
-# basic stubs for how the model could be ran
+import DCL_Person as Person
+import math
 
 class Model(object):
-    def __init__(self, conf = {}):
-"""
-        self.grid_size        = conf['grid_size']          if 'grid_size' in conf          else 100
-        self.veg_den          = conf['vegitation_density'] if 'vegitation_density' in conf else .3
-        self.creature_den     = conf['creature_density']   if 'creature_density' in conf   else .08
-        self.carnivore_chance = conf['carnivore_chance']   if 'carnivore_chance' in conf   else .01
-        self.omnivore_chance  = conf['omnivore_chance']    if 'omnivore_chance' in conf    else .01
-        self.sim_length       = conf['sim_length']         if 'sim_length' in conf         else 500
-        self.steps_day        = conf['steps_day']          if 'steps_day' in conf          else 1
-        
-        self.delta_t = 1 / float(self.steps_day)
-        self.analytics = AR.AnalyticsReporting(self)
-"""
+    def __init__(self, num_agents = 100):
         self.logger = L.Logger(self)
+        self.agents = []
+        self.num_agents = num_agents
+
+        self.spawn_agents(num_agents)
 
     def run_simulation(self):
-        self.env = Environment(self)
 
         for x in range (self.sim_length * self.steps_day):
             for agent in self.env.agents:
-                # delta_t, x, and steps per day can be used if an agent should have different behaviors
-                # at different times of day (if sim_length were days, and delta_t was 1/24,
-                # then (x % steps_day) between 20 and 06 could be times that day-dwellers sleep, for example
-                # Can be ignored if we'd rather not deal with it.
-                for actions in range(agent.movement_speed):
-                    action = agent.take_turn(self.delta_t, x, self.steps_day).do_action()
-                    if action == False:
-                        self.logger.log(10, 'Action error occurred! agent: %r action: %r' % (agent, action))
-                    self.analytics.turn_analyze()
-            if x != 0 and x % self.steps_day == 0:
-                for agent in self.env.agents:
-                    agent.daily_agent_maintenance()
-            self.analytics.round_analyze()
+                agent.take_turn()
+            #self.analytics.round_analyze()
 
         # Report any interesting statistiscs, etc
         self.analytics.finish_analyze()
 
+    def spawn_agents(self, num_agents):
+        for x in range(num_agents):
+            self.agents.append(Person.Person())
+
+def find_distance(agent1, agent2):
+    """
+    :param agent1: first agent
+    :param agent2: second agent
+    :return: distance (in miles) between agent1 and agent2
+
+    Taken from http://andrew.hedges.name/experiments/haversine/
+    Permission granted by terms specified on source page
+    """
+    dlon = agent1.location[0] - agent2.location[0]
+    dlat = agent1.location[1] - agent2.location[1]
+    a = (math.sin(dlat / 2)) ^ 2 + math.cos(agent1.location[1]) * \
+         math.cos(agent2.location[1]) * (math.sin(dlon / 2)) ^ 2
+    c = 2 * math.atan2(a ** .5, (1 - a) ** .5)
+    return 3961 * c
 
 class ModelTests(unittest.TestCase):
     def tests(self):
-        m = Model({'grid_size': 30})
+        m = Model()
         m.run_simulation()
 
 if __name__ == "__main__":
