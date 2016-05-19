@@ -10,15 +10,18 @@ import math
 import random
 
 class Model(object):
-    def __init__(self, num_agents = 100, topics = 100, friend_thresh = 5, enemy_thresh = -5,
-                 time_to_run = 3):
+    def __init__(self, num_agents = 10000, topics = 100, friend_thresh = 5, enemy_thresh = -5,
+                 time_to_run = 3, probability_initially_online = 0.005, probability_become_online = 0.0005):
         self.logger = L.Logger(self, options = {'threshold': 1})
         self.agents = []
+        self.online_agents = []
         self.num_agents = num_agents
         self.topics = topics
         self.friend_thresh = friend_thresh
         self.enemy_thresh = enemy_thresh
         self.time_to_run = time_to_run
+        self.probability_initially_online = probability_initially_online
+        self.probability_become_online = probability_become_online
 
         self.spawn_agents(num_agents)
 
@@ -35,13 +38,20 @@ class Model(object):
     def spawn_agents(self, num_agents):
         for x in range(num_agents):
             self.agents.append(Person.Person(self, personality = Personality.Personality))
+            if random.random() < self.probability_initially_online:
+                self.agents[x].online = True
+                self.online_agents.append(self.agents[x])
 
-        # seed some friends just by random for now
-        for x in range(len(self.agents)):
-            friend_to_add = None
-            while friend_to_add is None or friend_to_add == x:
-                friend_to_add = random.randint(0, len(self.agents) - 1)
-            self.agents[x].friends.append(self.agents[friend_to_add])
+        # connect some users to internet and seed some friends just by random for now
+        for agent in self.online_agents:
+            self.initial_connect_friend(agent)
+
+    def initial_connect_friend(self, agent):
+        # just random for now, will make more complex later
+        friend_to_add = None
+        while friend_to_add is None or friend_to_add == agent:
+            friend_to_add = self.online_agents[random.randint(0, len(self.online_agents) - 1)]
+        agent.friends.append(friend_to_add)
 
 def find_distance(agent1, agent2):
     """

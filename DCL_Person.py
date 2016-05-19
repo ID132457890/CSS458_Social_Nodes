@@ -4,7 +4,7 @@ import DCL_Post as Post
 
 class Person(object):
     def __init__(self, model, location = None, friends_affinity = 5, enemies_affinity = -5,
-                 personality = None):
+                 personality = None, online = False):
         self.affinity_map = {}
         self.friends = []
         self.enemies = []
@@ -16,15 +16,23 @@ class Person(object):
         else:
             self.personality = personality(person = self, model = model)
         self.model = model
+        self.online = online
 
         if location is None:
             self.location = (random.randint(-180, 180), random.randint(-80, 80))
 
     def take_turn(self):
         # decide to create a post or not
-        self.create_post()
-        self.decay_relationships()
-        pass
+        if self.online == True:
+            self.create_post()
+            self.decay_relationships()
+        else:
+            # some chance to get online
+            if random.random() < self.model.probability_become_online:
+                # just give them one random friend for now...
+                self.model.logger.log(1, "%r got connected to the internet." % self)
+                self.online = True
+                self.model.initial_connect_friend(self)
 
     def create_post(self):
         if self.personality is None:
@@ -36,7 +44,7 @@ class Person(object):
                 self.dispatch_post(post)
 
     def process_post(self, message):
-        if message != self.previous_post_seen and message.sender not in self.enemies:
+        if self.online == True and message != self.previous_post_seen and message.sender not in self.enemies:
             self.previous_post_seen = message
             if self.personality is None:
                 pass
