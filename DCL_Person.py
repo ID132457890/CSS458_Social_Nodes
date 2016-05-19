@@ -37,7 +37,10 @@ class Person(object):
                 pass
             else:
                 affinity_delta = self.personality.process_post(message)
-
+                if message.poster in self.affinity_map:
+                    self.affinity_map[message.poster] += affinity_delta
+                else:
+                    self.affinity_map[message.poster] = affinity_delta
         else:
             # ignore message
             pass
