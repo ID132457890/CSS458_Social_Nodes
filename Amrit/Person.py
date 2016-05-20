@@ -52,13 +52,27 @@ class Person(object):
         for personID in self.connectedPeople.keys():
             if self.connectedPeople[personID] >= VR.FRIEND_LIMIT:
                 friends.append(personID)
+                
+        return friends
+        
+    def getEdges(self):
+        edges = []
+        
+        for personID in self.connectedPeople:
+            person = PM.PersonsManager.sharedManager.getPersonFromID(personID)
+            
+            edge = {(self, person): self.connectedPeople[personID]}
+            edges.append(edge)
+            
+        return edges
         
     def evaluatePost(self, post):
-        if post in self.allPosts == False:
+        if (post.senderID != self.ID) and (post in self.allPosts) == False:
             sender = PM.PersonsManager.sharedManager.getPersonFromID(post.senderID)
             self.allPosts.append(post)
-        
-            if self.connectedPeople[post.senderID] > VR.ENEMY_LIMIT:
+            
+            if ((post.senderID in self.connectedPeople) == False) or ((post.senderID in self.connectedPeople) and \
+                self.connectedPeople[post.senderID] > VR.ENEMY_LIMIT):
                 self.receivedPosts.append(post)
         
                 likeness = self.personality.evaluatePost(self, post)

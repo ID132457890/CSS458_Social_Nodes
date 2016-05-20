@@ -75,8 +75,8 @@ class Personality(object):
 class Introvert(Personality):
     
     def __init__(self, topics={1:3, 2:-4, 3:-5, 7: 2}):
-        self.distancePreference = 1.0
-        self.topicPreference = 0.0
+        self.distancePreference = 0.2
+        self.topicPreference = 0.9
         
         self.postPreference = 0.5
         
