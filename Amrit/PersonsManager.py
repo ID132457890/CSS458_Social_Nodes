@@ -14,6 +14,10 @@ class PersonsManager(object):
     @staticmethod
     def createManager():
         PersonsManager.sharedManager = PersonsManager()
+        
+    def __init__(self):
+        self.people = []
+        self.posts = []
     
     def addPerson(self, position):
         person = PE.Person(PE.Position(position.x, position.y), ID=self.increasingID)
@@ -54,7 +58,7 @@ class PersonsManager(object):
         
     def broadcastPost(self, post):
         for person in self.people:
-            if person.ID != post.senderID:
+            if (person.ID != post.senderID) and (person.online == True):
                 person.evaluatePost(post)
             
         self.posts.append(post)
@@ -68,6 +72,7 @@ class PersonsManager(object):
         edges = []
         
         for person in self.people:
+            #if person.online:
             edges = edges + person.getEdges()
             
         V.Visualizer.sharedVisualizer.addNodesAndEdges(self.people, edges)
