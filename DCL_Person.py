@@ -34,6 +34,7 @@ class Person(object):
                 # just give them one random friend for now...
                 self.model.logger.log(1, "%r got connected to the internet." % self)
                 self.online = True
+                self.model.online_agents.append(self)
                 self.model.initial_connect_friend(self)
 
     def create_post(self):

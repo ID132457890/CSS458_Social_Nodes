@@ -11,8 +11,8 @@ import random
 
 class Model(object):
     def __init__(self, num_agents = 10000, topics = 100, friend_thresh = 5, enemy_thresh = -5,
-                 time_to_run = 3, probability_initially_online = 0.005, probability_become_online = 0.0005):
-        self.logger = L.Logger(self, options = {'threshold': 1})
+                 time_to_run = 20, probability_initially_online = 0.005, probability_become_online = 0.0005):
+        self.logger = L.Logger(self, options = {'threshold': 3})
         self.agents = []
         self.online_agents = []
         self.num_agents = num_agents
@@ -30,6 +30,7 @@ class Model(object):
         for x in range (self.time_to_run):
             for agent in self.agents:
                 agent.take_turn()
+            self.generate_statistics(x)
             #self.analytics.round_analyze()
 
         # Report any interesting statistiscs, etc
@@ -52,6 +53,56 @@ class Model(object):
         while friend_to_add is None or friend_to_add == agent:
             friend_to_add = self.online_agents[random.randint(0, len(self.online_agents) - 1)]
         agent.friends.append(friend_to_add)
+
+    def generate_statistics(self, timestep):
+        total_friends = 0
+        total_enemies = 0
+        affinity_entries = 0
+        num_online = len(self.online_agents)
+        for agent in self.online_agents:
+            total_friends += len(agent.friends)
+            total_enemies += len(agent.enemies)
+            affinity_entries += len(agent.affinity_map)
+        self.logger.log(3, "round %d: %d agents online, average of %d friend(s), %d unfriend(s), %d people known" %
+                        (timestep, num_online, total_friends / num_online, total_enemies / num_online,
+                         affinity_entries / num_online))
+        self.logger.log(3, "Relationship between online agents 0 and 1 (degrees of separation): %r" %
+                        (find_degrees_of_separation(self.online_agents[0], self.online_agents[1])))
+
+def find_degrees_of_separation(agent1, agent2):
+    """
+    Finds the degrees of separation (number of intermediary friends) between two
+    agents.
+
+    :param agent1: first agent
+    :param agent2: second agent
+    :return: returns integer containing the count of intermediate friends between agent1 and agent2
+    or, if no relationship is found between the two agents, None is returned.
+    """
+
+    # Perform breadth-first search to see if we can find agent2 starting from agent1
+    if len(agent1.friends) < 1:
+        return None
+
+    checked = {}
+
+    queue = agent1.friends[:]
+    separation = 0
+    while len(queue) > 0:
+        for person in queue:
+            if person == agent2:
+                return separation
+            else:
+                checked[person] = None
+        separation += 1
+        oldqueue = queue
+        queue = []
+        for person in oldqueue:
+            if len(person.friends) > 0:
+                queue.extend([x for x in person.friends[:] if x not in checked])
+
+    # No relationship found
+    return None
 
 def find_distance(agent1, agent2):
     """
