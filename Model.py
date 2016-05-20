@@ -81,24 +81,24 @@ def find_degrees_of_separation(agent1, agent2):
     """
 
     # Perform breadth-first search to see if we can find agent2 starting from agent1
-    if len(agent1.friends) < 1:
+    if not agent1.friends:
         return None
 
-    checked = {}
+    checked = set()
 
     queue = agent1.friends[:]
     separation = 0
-    while len(queue) > 0:
+    while (queue):
         for person in queue:
             if person == agent2:
                 return separation
             else:
-                checked[person] = None
+                checked.add(person)
         separation += 1
         oldqueue = queue
         queue = []
         for person in oldqueue:
-            if len(person.friends) > 0:
+            if person.friends:
                 queue.extend([x for x in person.friends[:] if x not in checked])
 
     # No relationship found
