@@ -32,7 +32,7 @@ class PersonsManager(object):
         
     def startOnline(self, person=None):
         if person == None:
-            randomIndexes = N.random.randint(len(self.people))
+            randomIndexes = N.random.randint(len(self.people), size=5)
         
             for i in range(len(self.people)):
                 if i in randomIndexes:
@@ -46,6 +46,11 @@ class PersonsManager(object):
         for person in self.people:
             if person.online == True:
                 person.createPost()
+                
+    def startSharing(self):
+        for person in self.people:
+            if person.online == True:
+                person.sharePosts()
         
     def broadcastPost(self, post):
         for person in self.people:
@@ -58,3 +63,11 @@ class PersonsManager(object):
         for person in self.people:
             if person.ID in people:
                 person.evaluatePost(post)
+                
+    def updateVisualization(self):
+        edges = []
+        
+        for person in self.people:
+            edges = edges + person.getEdges()
+            
+        V.Visualizer.sharedVisualizer.addNodesAndEdges(self.people, edges)
