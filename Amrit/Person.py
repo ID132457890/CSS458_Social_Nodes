@@ -31,6 +31,7 @@ class Person(object):
     friendsList = {}
     ignoredList = {}
     
+    allPosts = []
     receivedPosts = []
     
     def __init__(self, position, ID=0, friends=None):
@@ -49,27 +50,32 @@ class Person(object):
         friends = []
         
         for personID in self.connectedPeople.keys():
-            if connectedPeople[personID] >= VR.FRIEND_LIMIT:
+            if self.connectedPeople[personID] >= VR.FRIEND_LIMIT:
                 friends.append(personID)
         
     def evaluatePost(self, post):
-        self.receivedPosts.append(post)
-        likeness = self.personality.evaluatePost(self, post)
+        if post in self.allPosts == False:
+            sender = PM.PersonsManager.sharedManager.getPersonFromID(post.senderID)
+            self.allPosts.append(post)
         
-        if post.senderID in self.connectedPeople:
-            self.connectedPeople[post.senderID] += likeness
-        else:
-            self.connectedPeople[post.senderID] = likeness
+            if self.connectedPeople[post.senderID] > VR.ENEMY_LIMIT:
+                self.receivedPosts.append(post)
+        
+                likeness = self.personality.evaluatePost(self, post)
+        
+                if post.senderID in self.connectedPeople:
+                    self.connectedPeople[post.senderID] += likeness
+                else:
+                    self.connectedPeople[post.senderID] = likeness
             
-        PM.PersonsManager.sharedManager.startOnline(person=self)
+                PM.PersonsManager.sharedManager.startOnline(person=self)
         
-        sender = PM.PersonsManager.sharedManager.getPersonFromID(post.senderID)
-        V.Visualizer.sharedVisualizer.connect(self, sender, self.connectedPeople[post.senderID])
+                V.Visualizer.sharedVisualizer.connect(self, sender, self.connectedPeople[post.senderID])
         
     def sharePosts(self):
         for post in list(self.receivedPosts):
             if self.personality.shouldSharePost():
-                PM.PersonsManager.sharedManager.sharePost(post)
+                PM.PersonsManager.sharedManager.sharePost(post, self.getFriends())
                 self.receivedPosts.remove(post)
         
     def createPost(self):
@@ -82,3 +88,5 @@ class Person(object):
             
             post = PO.Post(chosenTopics, self.ID)
             PM.PersonsManager.sharedManager.broadcastPost(post)
+            
+            self.allPosts.append(post)
