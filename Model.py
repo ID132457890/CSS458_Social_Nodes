@@ -70,7 +70,7 @@ class Model(object):
         self.logger.log(3, "Relationship between online agents 0 and 1 (degrees of separation): %r" %
                         (find_degrees_of_separation(self.online_agents[0], self.online_agents[1])))
 
-        num_users_to_average_separation = int(len(self.online_agents) / 3)
+        num_users_to_average_separation = int(len(self.online_agents) * 3)
         deg_sep = 0
         unknowns = 0
         for x in range(num_users_to_average_separation):

@@ -3,7 +3,7 @@ import DCL_Personality as Personality
 import DCL_Post as Post
 
 class Person(object):
-    def __init__(self, model, location = None, friends_affinity = 5, enemies_affinity = -5,
+    def __init__(self, model, location = None, friends_affinity = 150, enemies_affinity = -200,
                  personality = None, online = False):
         self.affinity_map = {}
         self.friends = []

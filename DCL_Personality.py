@@ -102,42 +102,42 @@ class LikesEveryOddTopicNumber(PersonalityFacet):
     def process_post(self, message, current_score, person):
         for topic in message.topics:
             if topic % 2 == 1:
-                current_score += 1
+                current_score += 5
         return self.return_result(message, current_score, person)
 
 class LikesEveryEvenTopicNumber(PersonalityFacet):
     def process_post(self, message, current_score, person):
         for topic in message.topics:
             if topic % 2 == 0:
-                current_score += 1
+                current_score += 5
         return self.return_result(message, current_score, person)
 
 class LikesClosePeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
         if distance < 2000 and current_score > 0:
-            current_score *= 1.5 if current_score > 0 else 0.5
+            current_score *= 3 if current_score > 0 else 0.5
         return self.return_result(message, current_score, person)
 
 class LikesDistantPeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
         if distance > 2000 and current_score > 0:
-            current_score *= 1.5 if current_score > 0 else 0.5
+            current_score *= 3 if current_score > 0 else 0.5
         return self.return_result(message, current_score, person)
 
 class HatesPeopleInOppositeHemisphere(PersonalityFacet):
     def process_post(self, message, current_score, person):
         if person.location[0] * message.sender.location[0] < 0:
-            current_score += - 3
+            current_score += - 10
         if person.location[1] * message.sender.location[1] < 0:
-            current_score += - 3
+            current_score += - 10
         return self.return_result(message, current_score, person)
 
 class LovesPeopleInOppositeHemisphere(PersonalityFacet):
     def process_post(self, message, current_score, person):
         if person.location[0] * message.sender.location[0] < 0:
-            current_score += 3
+            current_score += 20
         if person.location[1] * message.sender.location[1] < 0:
-            current_score += 3
+            current_score += 20
         return self.return_result(message, current_score, person)
