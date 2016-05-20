@@ -1,6 +1,7 @@
 import numpy as N
 import Visualizer as V
 import Person as PE
+import Variables as VR
 
 class PersonsManager(object):
     sharedManager = None
@@ -29,12 +30,31 @@ class PersonsManager(object):
                 
         return None
         
+    def startOnline(self, person=None):
+        if person == None:
+            randomIndexes = N.random.randint(len(self.people))
+        
+            for i in range(len(self.people)):
+                if i in randomIndexes:
+                    self.people[i].online = True
+        else:
+            for aPerson in self.people:
+                if person.position.distanceFrom(aPerson.position) <= VR.NEIGHBOUR_DISTANCE:
+                    aPerson.online = True
+        
     def startSending(self):
         for person in self.people:
-            person.createPost()
+            if person.online == True:
+                person.createPost()
         
     def broadcastPost(self, post):
         for person in self.people:
-            person.evaluatePost(post)
+            if person.ID != post.senderID:
+                person.evaluatePost(post)
             
         self.posts.append(post)
+        
+    def sharePost(self, post, people):
+        for person in self.people:
+            if person.ID in people:
+                person.evaluatePost(post)

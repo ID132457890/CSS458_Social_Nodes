@@ -17,9 +17,14 @@ class Model(object):
             
             PM.PersonsManager.sharedManager.addPerson(position)
             
-    def sendMessage(self):
-        PM.PersonsManager.sharedManager.startSending()
+    def startSimulating(self, maxTime=10):
+        
+        for time in range(maxTime + 1):
+            if time == 0:
+                PM.PersonsManager.sharedManager.startOnline()
+            else:
+                PM.PersonsManager.sharedManager.startSending()
         
 model = Model()
 model.spawnAgents()
-model.sendMessage()
+model.startSimulating(1)

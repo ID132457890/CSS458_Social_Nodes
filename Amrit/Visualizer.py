@@ -20,7 +20,7 @@ class Visualizer(object):
         self.updateMainGraph(node=node)
         
     def connect(self, fromNode, toNode, weight):
-        if (toNode, fromNode) in self.edges:
+        if (toNode, fromNode) in self.edges.keys():
             self.edges[(toNode, fromNode)] = weight
             
             self.mainGraph.remove_edge(toNode, fromNode)
@@ -28,7 +28,7 @@ class Visualizer(object):
             
             #self.updateMainGraph(edge={(toNode, fromNode): weight})
             
-        elif (fromNode, toNode) in self.edges:
+        elif (fromNode, toNode) in self.edges.keys():
             self.edges[(fromNode, toNode)] = weight
             
             self.mainGraph.remove_edge(fromNode, toNode)
@@ -40,6 +40,7 @@ class Visualizer(object):
             self.edges[(fromNode, toNode)] = weight
             self.mainGraph.add_edge(fromNode, toNode, weight=weight)
             
+            print(weight)
             self.updateMainGraph(edge={(fromNode, toNode): weight})
     
     def updateMainGraph(self, node=None, edge=None):
@@ -54,7 +55,7 @@ class Visualizer(object):
                         
             nx.draw_networkx_edges(self.mainGraph, \
                                   {node1: node1.position.toTouple(), node2: node2.position.toTouple()}, \
-                                  width=1, \
+                                  width=edge[firstKey], \
                                   edgelist=[firstKey])
                                                     
         plt.show()

@@ -3,7 +3,7 @@ class Post(object):
     senderID = 1234567890
     
     def __init__ (self, topics, senderID):
-        self.topics = topics
+        self.topics = list(topics)
         self.senderID = senderID
         
     
