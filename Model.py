@@ -11,7 +11,7 @@ import random
 
 class Model(object):
     def __init__(self, num_agents = 10000, topics = 100, friend_thresh = 5, enemy_thresh = -5,
-                 time_to_run = 20, probability_initially_online = 0.005, probability_become_online = 0.0005):
+                 time_to_run = 100, probability_initially_online = 0.005, probability_become_online = 0.0005):
         self.logger = L.Logger(self, options = {'threshold': 3})
         self.agents = []
         self.online_agents = []
@@ -49,10 +49,11 @@ class Model(object):
 
     def initial_connect_friend(self, agent):
         # just random for now, will make more complex later
-        friend_to_add = None
-        while friend_to_add is None or friend_to_add == agent:
-            friend_to_add = self.online_agents[random.randint(0, len(self.online_agents) - 1)]
-        agent.friends.append(friend_to_add)
+        for x in range(2):
+            friend_to_add = None
+            while friend_to_add is None or friend_to_add == agent:
+                friend_to_add = self.online_agents[random.randint(0, len(self.online_agents) - 1)]
+            agent.friends.append(friend_to_add)
 
     def generate_statistics(self, timestep):
         total_friends = 0
@@ -68,6 +69,27 @@ class Model(object):
                          affinity_entries / num_online))
         self.logger.log(3, "Relationship between online agents 0 and 1 (degrees of separation): %r" %
                         (find_degrees_of_separation(self.online_agents[0], self.online_agents[1])))
+
+        num_users_to_average_separation = int(len(self.online_agents) / 3)
+        deg_sep = 0
+        unknowns = 0
+        for x in range(num_users_to_average_separation):
+            a1 = random.randint(0, len(self.online_agents)-1)
+            a2 = a1
+            while a2 == a1:
+                a2 = random.randint(0, len(self.online_agents)-1)
+            sep = find_degrees_of_separation(self.online_agents[a1], self.online_agents[a2])
+            if sep is not None:
+                deg_sep += sep
+            else:
+                unknowns += 1
+
+        if num_users_to_average_separation != unknowns:
+            deg_sep /= (num_users_to_average_separation - unknowns)
+
+        self.logger.log(3, "Randomly selected users who there is a chain of connections, the average length of " +
+                        "that chain is %d.  %d had no connection path.  %d were checked." %
+                        (deg_sep, unknowns, num_users_to_average_separation))
 
 def find_degrees_of_separation(agent1, agent2):
     """

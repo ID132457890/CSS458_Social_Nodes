@@ -61,15 +61,19 @@ class Personality(object):
         return like_total
 
     def create_post(self):
-        # just one topic for now
-        keys = list(self.interests.keys())
-        post_topic = [self.interests[keys[random.randint(0, len(keys)-1)]],]
-        return Post.Post(self.person, post_topic)
-        # to be implemented once post object exists
+        if random.random() < .2:
+            keys = list(self.interests.keys())
+            post_topic = []
+            # randomly 1 to 4 topics
+            for x in range(random.randint(0, 4)):
+                post_topic.append(self.interests[keys[random.randint(0, len(keys)-1)]])
+            return Post.Post(self.person, post_topic)
+
 
     def repost_decide(self, message):
-        # just repost everything liked in this implementation
-        self.person.dispatch_post(message)
+        # just repost 20% for now
+        if random.random() < .2:
+            self.person.dispatch_post(message)
 
 
 
