@@ -89,9 +89,8 @@ def find_degrees_of_separation(agent1, agent2):
     queue = agent1.friends[:]
     separation = 0
     while (queue):
-        for person in queue:
-            if person == agent2:
-                return separation
+        if person in queue:
+            return separation
         separation += 1
         oldqueue = queue
         checked.update(oldqueue)
