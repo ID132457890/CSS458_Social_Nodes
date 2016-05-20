@@ -7,10 +7,10 @@ def random_personality_generator(personality, model):
 
     likemap = {}
     # both of these need to sum to <= 1
-    prob_to_like = .1
-    prob_to_dislike = .1
+    prob_to_like = .2
+    prob_to_dislike = .15
 
-    amount_to_like_dislike = (1,5)
+    amount_to_like_dislike = (1,15)
 
     for x in range(num_of_topics):
         like = random.random()
@@ -48,6 +48,9 @@ class Personality(object):
         self.facets = facet_generator(self, model)
         self.model = model
 
+        self.post_probabilty = random.random() * 0.6
+        self.repost_probability = random.random() * 0.4
+
     def process_post(self, message):
         like_total = 0
 
@@ -61,7 +64,7 @@ class Personality(object):
         return like_total
 
     def create_post(self):
-        if random.random() < .2:
+        if random.random() < self.post_probabilty:
             keys = list(self.interests.keys())
             post_topic = []
             # randomly 1 to 4 topics
@@ -71,8 +74,8 @@ class Personality(object):
 
 
     def repost_decide(self, message):
-        # just repost 20% for now
-        if random.random() < .2:
+        # just repost 50% for now
+        if random.random() < self.repost_probability:
             self.person.dispatch_post(message)
 
 
@@ -102,42 +105,42 @@ class LikesEveryOddTopicNumber(PersonalityFacet):
     def process_post(self, message, current_score, person):
         for topic in message.topics:
             if topic % 2 == 1:
-                current_score += 5
+                current_score += 1
         return self.return_result(message, current_score, person)
 
 class LikesEveryEvenTopicNumber(PersonalityFacet):
     def process_post(self, message, current_score, person):
         for topic in message.topics:
             if topic % 2 == 0:
-                current_score += 5
+                current_score += 1
         return self.return_result(message, current_score, person)
 
 class LikesClosePeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
         if distance < 2000 and current_score > 0:
-            current_score *= 3 if current_score > 0 else 0.5
+            current_score *= 1.5 if current_score > 0 else 0.5
         return self.return_result(message, current_score, person)
 
 class LikesDistantPeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
         if distance > 2000 and current_score > 0:
-            current_score *= 3 if current_score > 0 else 0.5
+            current_score *= 1.5 if current_score > 0 else 0.5
         return self.return_result(message, current_score, person)
 
 class HatesPeopleInOppositeHemisphere(PersonalityFacet):
     def process_post(self, message, current_score, person):
         if person.location[0] * message.sender.location[0] < 0:
-            current_score += - 10
+            current_score += - 2
         if person.location[1] * message.sender.location[1] < 0:
-            current_score += - 10
+            current_score += - 2
         return self.return_result(message, current_score, person)
 
 class LovesPeopleInOppositeHemisphere(PersonalityFacet):
     def process_post(self, message, current_score, person):
         if person.location[0] * message.sender.location[0] < 0:
-            current_score += 20
+            current_score += 2
         if person.location[1] * message.sender.location[1] < 0:
-            current_score += 20
+            current_score += 2
         return self.return_result(message, current_score, person)

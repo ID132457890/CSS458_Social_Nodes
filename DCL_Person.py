@@ -10,7 +10,7 @@ class Person(object):
         self.enemies = []
         self.friends_affinity = friends_affinity
         self.enemies_affinity = enemies_affinity
-        self.previous_post_seen = None
+        self.posts_seen = set()
         if personality == None:
             self.personality = personality
         else:
@@ -23,8 +23,11 @@ class Person(object):
         else:
             self.location = location
 
+        self.inbox = set()
+
     def take_turn(self):
         # decide to create a post or not
+        self.posts_seen.clear()
         if self.online == True:
             self.create_post()
             self.decay_relationships()
@@ -37,6 +40,18 @@ class Person(object):
                 self.model.online_agents.append(self)
                 self.model.initial_connect_friend(self)
 
+    def receive_post(self, message):
+        if self.online == True and message not in self.posts_seen:
+            self.model.messages_received += 1
+            self.inbox.add(message)
+            self.model.request_post_attention(self)
+
+    def settle_reposts(self):
+        self.posts_seen.update(self.inbox)
+        for message in self.inbox:
+            self.process_post(message)
+        self.inbox.clear()
+
     def create_post(self):
         if self.personality is None:
             # No personality, do nothing
@@ -44,11 +59,11 @@ class Person(object):
         else:
             post = self.personality.create_post()
             if post is not None:
+                self.model.messages_sent += 1
                 self.dispatch_post(post)
 
     def process_post(self, message):
-        if self.online == True and message != self.previous_post_seen and message.sender not in self.enemies:
-            self.previous_post_seen = message
+        if message.sender not in self.enemies:
             if self.personality is None:
                 pass
             else:
@@ -77,7 +92,7 @@ class Person(object):
     def dispatch_post(self, post):
         for friend in self.friends:
             self.model.logger.log(0, "%r dispatching post %r to %r" % (self, post, friend))
-            friend.process_post(post)
+            friend.receive_post(post)
 
     def decay_relationships(self):
         """
