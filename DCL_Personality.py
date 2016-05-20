@@ -5,23 +5,26 @@ import Model
 def random_personality_generator(personality, model):
     num_of_topics = model.topics
 
-    likemap = {}
+    likemap = None
     # both of these need to sum to <= 1
     prob_to_like = .2
     prob_to_dislike = .15
 
     amount_to_like_dislike = (1,15)
 
-    for x in range(num_of_topics):
-        like = random.random()
-        amount = random.randint(amount_to_like_dislike[0], amount_to_like_dislike[1])
-        if like < prob_to_like:
-            likemap[x] = amount
-        elif like < prob_to_dislike + prob_to_like:
-            amount *= -1
-            likemap[x] = amount
-        else:
-            pass
+    # put in a loop in case no likes get selected
+    while likemap is None or len(likemap) == 0:
+        likemap = {}
+        for x in range(num_of_topics):
+            like = random.random()
+            amount = random.randint(amount_to_like_dislike[0], amount_to_like_dislike[1])
+            if like < prob_to_like:
+                likemap[x] = amount
+            elif like < prob_to_dislike + prob_to_like:
+                amount *= -1
+                likemap[x] = amount
+            else:
+                pass
 
     return likemap
 
@@ -48,8 +51,8 @@ class Personality(object):
         self.facets = facet_generator(self, model)
         self.model = model
 
-        self.post_probabilty = random.random() * 0.6
-        self.repost_probability = random.random() * 0.4
+        self.post_probabilty = random.random() * 0.65
+        self.repost_probability = random.random() * 0.45
 
     def process_post(self, message):
         like_total = 0

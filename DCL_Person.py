@@ -6,8 +6,8 @@ class Person(object):
     def __init__(self, model, location = None, friends_affinity = 150, enemies_affinity = -200,
                  personality = None, online = False):
         self.affinity_map = {}
-        self.friends = []
-        self.enemies = []
+        self.friends = set()
+        self.enemies = set()
         self.friends_affinity = friends_affinity
         self.enemies_affinity = enemies_affinity
         self.posts_seen = set()
@@ -78,13 +78,15 @@ class Person(object):
                 # currently friendship is not reciprocal, perhaps change?
 
                 if poster_affinity >= self.friends_affinity:
-                    if message.sender not in self.friends:
-                        self.friends.append(message.sender)
-                        self.model.logger.log(1, "%r became friends with %r"% (self, message.sender))
+                    self.friends.add(message.sender)
+                    self.model.logger.log(1, "%r became friends with %r"% (self, message.sender))
                 elif poster_affinity <= self.enemies_affinity:
-                    if message.sender not in self.enemies:
-                        self.enemies.append(message.sender)
-                        self.model.logger.log(1, "%r became enemies with %r" % (self, message.sender))
+                    if message.sender in self.friends:
+                        self.friends.remove(message.sender)
+                        if self in message.sender.friends:
+                            message.sender.friends.remove(self)
+                    self.enemies.add(message.sender)
+                    self.model.logger.log(1, "%r became enemies with %r" % (self, message.sender))
         else:
             # ignore message
             pass
@@ -104,8 +106,8 @@ class Person(object):
         removal_thresh = 0.05
 
         known_people = self.affinity_map.keys()
-        people_to_affect = [x for x in known_people if known_people not in self.friends
-                            and known_people not in self.enemies]
+        people_to_affect = [x for x in known_people if x not in self.friends
+                            and x not in self.enemies]
 
         for person in people_to_affect:
             self.affinity_map[person] *= affect_magnitude

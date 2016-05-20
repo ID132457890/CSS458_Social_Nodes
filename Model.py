@@ -10,8 +10,8 @@ import math
 import random
 
 class Model(object):
-    def __init__(self, num_agents = 15000, topics = 50, friends_affinity = 15, enemies_affinity = -22,
-                 time_to_run = 30, probability_initially_online = 0.05, probability_become_online = 0.005):
+    def __init__(self, num_agents = 3000, topics = 30, friends_affinity = 25, enemies_affinity = -22,
+                 time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05):
         self.logger = L.Logger(self, options = {'threshold': 3})
         self.agents = []
         self.online_agents = []
@@ -59,7 +59,7 @@ class Model(object):
 
     def initial_connect_friend(self, agent):
         # just random for now, will make more complex later
-        if random.random() < .2:
+        if random.random() < .35:
             num_friends = 2
         else:
             num_friends = 1
@@ -68,8 +68,8 @@ class Model(object):
             friend_to_add = None
             while friend_to_add is None or friend_to_add == agent:
                 friend_to_add = self.online_agents[random.randint(0, len(self.online_agents) - 1)]
-            agent.friends.append(friend_to_add)
-            friend_to_add.friends.append(agent)
+            agent.friends.add(friend_to_add)
+            friend_to_add.friends.add(agent)
 
     def generate_statistics(self, timestep):
         total_friends = 0
@@ -131,7 +131,7 @@ def find_degrees_of_separation(agent1, agent2):
 
     checked = set()
 
-    queue = agent1.friends[:]
+    queue = list(agent1.friends)
     separation = 0
     while (queue):
         if agent2 in queue:
@@ -142,7 +142,7 @@ def find_degrees_of_separation(agent1, agent2):
         queue = []
         for person in oldqueue:
             if person.friends:
-                queue.extend([x for x in person.friends[:] if x not in checked])
+                queue.extend([x for x in list(person.friends) if x not in checked])
 
     # No relationship found
     return None
