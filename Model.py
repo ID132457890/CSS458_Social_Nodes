@@ -63,7 +63,7 @@ class Model(object):
             total_friends += len(agent.friends)
             total_enemies += len(agent.enemies)
             affinity_entries += len(agent.affinity_map)
-        self.logger.log(3, "round %d: %d agents online, average of %d friend(s), %d unfriend(s), %d people known" %
+        self.logger.log(3, "round %d: %d agents, each average of %d friend(s), %d unfriend(s), %d people known" %
                         (timestep, num_online, total_friends / num_online, total_enemies / num_online,
                          affinity_entries / num_online))
         self.logger.log(3, "Relationship between online agents 0 and 1 (degrees of separation): %r" %
@@ -92,10 +92,9 @@ def find_degrees_of_separation(agent1, agent2):
         for person in queue:
             if person == agent2:
                 return separation
-            else:
-                checked.add(person)
         separation += 1
         oldqueue = queue
+        checked.update(oldqueue)
         queue = []
         for person in oldqueue:
             if person.friends:
