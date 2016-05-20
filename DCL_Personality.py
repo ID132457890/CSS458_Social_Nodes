@@ -7,8 +7,8 @@ def random_personality_generator(personality, model):
 
     likemap = None
     # both of these need to sum to <= 1
-    prob_to_like = .2
-    prob_to_dislike = .15
+    prob_to_like = .5
+    prob_to_dislike = .3
 
     amount_to_like_dislike = (1,15)
 
@@ -51,8 +51,15 @@ class Personality(object):
         self.facets = facet_generator(self, model)
         self.model = model
 
-        self.post_probabilty = random.random() * 0.65
-        self.repost_probability = random.random() * 0.45
+        self.post_probabilty = random.random()
+        self.repost_probability = random.random()
+        self.probability_read_reposts = random.random()
+
+    def accept_repost(self):
+        if random.random() < self.probability_read_reposts:
+            return True
+        else:
+            return False
 
     def process_post(self, message):
         like_total = 0

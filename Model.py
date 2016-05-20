@@ -10,7 +10,7 @@ import math
 import random
 
 class Model(object):
-    def __init__(self, num_agents = 3000, topics = 30, friends_affinity = 25, enemies_affinity = -22,
+    def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 20, enemies_affinity = -15,
                  time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05):
         self.logger = L.Logger(self, options = {'threshold': 3})
         self.agents = []
@@ -59,7 +59,7 @@ class Model(object):
 
     def initial_connect_friend(self, agent):
         # just random for now, will make more complex later
-        if random.random() < .35:
+        if random.random() < .40:
             num_friends = 2
         else:
             num_friends = 1
@@ -86,7 +86,7 @@ class Model(object):
         self.logger.log(3, "Relationship between online agents 0 and 1 (degrees of separation): %r" %
                         (find_degrees_of_separation(self.online_agents[0], self.online_agents[1])))
 
-        num_users_to_average_separation = int(len(self.online_agents) / 10)
+        num_users_to_average_separation = int(len(self.online_agents) / 200)
         deg_sep = 0
         unknowns = 0
         for x in range(num_users_to_average_separation):

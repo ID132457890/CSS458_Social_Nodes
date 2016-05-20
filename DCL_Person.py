@@ -46,6 +46,9 @@ class Person(object):
             self.inbox.add(message)
             self.model.request_post_attention(self)
 
+    def accept_repost(self):
+        return self.personality.accept_repost()
+
     def settle_reposts(self):
         self.posts_seen.update(self.inbox)
         for message in self.inbox:
@@ -79,6 +82,7 @@ class Person(object):
 
                 if poster_affinity >= self.friends_affinity:
                     self.friends.add(message.sender)
+                    message.sender.friends.add(self)
                     self.model.logger.log(1, "%r became friends with %r"% (self, message.sender))
                 elif poster_affinity <= self.enemies_affinity:
                     if message.sender in self.friends:
@@ -94,6 +98,12 @@ class Person(object):
     def dispatch_post(self, post):
         for friend in self.friends:
             self.model.logger.log(0, "%r dispatching post %r to %r" % (self, post, friend))
+
+            # if this is a repost, see if receiver will accept it
+            if post.sender != self:
+                if not friend.accept_repost():
+                    return None
+
             friend.receive_post(post)
 
     def decay_relationships(self):
