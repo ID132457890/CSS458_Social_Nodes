@@ -34,10 +34,10 @@ def random_facets(personality, model):
             if random.random() < .5 and len(selected) < num_to_select:
                 selected.append(option)
 
+    model.logger.log(1, "%r has gained personality facets %r" % (personality.person, selected))
     selected[len(selected)-1] = selected[len(selected)-1]()
     for x in range(len(selected)-2, -1, -1):
         selected[x] = selected[x](selected[x+1])
-
     return selected[0]
 
 class Personality(object):
