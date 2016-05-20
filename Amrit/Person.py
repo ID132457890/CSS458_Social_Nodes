@@ -36,6 +36,10 @@ class Person(object):
     
     def __init__(self, position, ID=0, friends=None):
         self.position = position
+        self.connectedPeople = {}
+        
+        self.allPosts = []
+        self.receivedPosts = []
         
         randomScales = N.random.randint(VR.MIN_TOPIC_VALUE, VR.MAX_TOPIC_VALUE, size=VR.NUM_OF_TOPICS)
         
@@ -67,7 +71,7 @@ class Person(object):
         return edges
         
     def evaluatePost(self, post):
-        if (post.senderID != self.ID) and (post in self.allPosts) == False:
+        if (post in self.allPosts) == False:
             sender = PM.PersonsManager.sharedManager.getPersonFromID(post.senderID)
             self.allPosts.append(post)
             
@@ -76,7 +80,7 @@ class Person(object):
                 self.receivedPosts.append(post)
         
                 likeness = self.personality.evaluatePost(self, post)
-        
+                
                 if post.senderID in self.connectedPeople:
                     self.connectedPeople[post.senderID] += likeness
                 else:
@@ -84,7 +88,7 @@ class Person(object):
             
                 PM.PersonsManager.sharedManager.startOnline(person=self)
         
-                V.Visualizer.sharedVisualizer.connect(self, sender, self.connectedPeople[post.senderID])
+                #V.Visualizer.sharedVisualizer.connect(self, sender, self.connectedPeople[post.senderID])
         
     def sharePosts(self):
         for post in list(self.receivedPosts):

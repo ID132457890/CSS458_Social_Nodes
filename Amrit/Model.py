@@ -3,7 +3,6 @@ import Visualizer as V
 import PersonsManager as PM
 import Person as PE
 import TimeManager as TM
-import time as T
 
 class Model(object):
     agents = []
@@ -32,8 +31,6 @@ class Model(object):
             PM.PersonsManager.sharedManager.updateVisualization()
                 
             TM.TimeManager.sharedManager.increaseTime()
-            
-            T.sleep(3)
         
 model = Model()
 model.spawnAgents()

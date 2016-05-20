@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import TimeManager as TM
+import pylab as pl
 
 class VItem(object):
     item = None
@@ -81,9 +82,10 @@ class Visualizer(object):
             positions[node] = (node.position.x, node.position.y)
         
         if len(widths) != 0:
-            nx.draw(graph, pos=positions, linewidths=widths)
+            nx.draw(graph, pos=positions, width=widths)
         
             plt.show()
+            plt.pause(0.5)
     
     def updateMainGraph(self, node=None, edge=None):
         if node != None:
