@@ -1,5 +1,6 @@
 import random
 import DCL_Post as Post
+import Model
 
 def random_personality_generator(personality, model):
     num_of_topics = model.topics
@@ -54,7 +55,7 @@ class Personality(object):
             if topic in self.interests:
                 like_total += self.interests[topic]
 
-        like_total = self.facets.process_post(message, like_total)
+        like_total = self.facets.process_post(message, like_total, self.person)
         self.model.logger.log(0, "%r had reaction of %d to %r" % (self.person, like_total, message))
         self.repost_decide(message)
         return like_total
@@ -82,27 +83,57 @@ class PersonalityFacet(object):
     def __init__(self, next_facet = None):
         self.next_facet = next_facet
 
-    def process_post(self, message, current_score):
+    def process_post(self, message, current_score, person):
         if self.next_facet is None:
             return current_score
-        return (self.next_facet.process_post(message))
+        return self.return_result(message, current_score, person)
 
-    def return_result(self, message, current_score):
+    def return_result(self, message, current_score, person):
         if self.next_facet is None:
             return current_score
-        return (self.next_facet.process_post(message))
+        return self.next_facet.return_result(message, current_score, person)
 
 
 class LikesEveryOddTopicNumber(PersonalityFacet):
-    def process_post(self, message, current_score):
+    def process_post(self, message, current_score, person):
         for topic in message.topics:
             if topic % 2 == 1:
                 current_score += 1
-        return self.return_result(message, current_score)
+        return self.return_result(message, current_score, person)
 
 class LikesEveryEvenTopicNumber(PersonalityFacet):
-    def process_post(self, message, current_score):
+    def process_post(self, message, current_score, person):
         for topic in message.topics:
             if topic % 2 == 0:
                 current_score += 1
-        return self.return_result(message, current_score)
+        return self.return_result(message, current_score, person)
+
+class LikesClosePeople(PersonalityFacet):
+    def process_post(self, message, current_score, person):
+        distance = Model.find_distance(person, message.sender)
+        if distance < 2000 and current_score > 0:
+            current_score *= 1.5 if current_score > 0 else 0.5
+        return self.return_result(message, current_score, person)
+
+class LikesDistantPeople(PersonalityFacet):
+    def process_post(self, message, current_score, person):
+        distance = Model.find_distance(person, message.sender)
+        if distance > 2000 and current_score > 0:
+            current_score *= 1.5 if current_score > 0 else 0.5
+        return self.return_result(message, current_score, person)
+
+class HatesPeopleInOppositeHemisphere(PersonalityFacet):
+    def process_post(self, message, current_score, person):
+        if person.location[0] * message.sender.location[0] < 0:
+            current_score += - 3
+        if person.location[1] * message.sender.location[1] < 0:
+            current_score += - 3
+        return self.return_result(message, current_score, person)
+
+class LovesPeopleInOppositeHemisphere(PersonalityFacet):
+    def process_post(self, message, current_score, person):
+        if person.location[0] * message.sender.location[0] < 0:
+            current_score += 3
+        if person.location[1] * message.sender.location[1] < 0:
+            current_score += 3
+        return self.return_result(message, current_score, person)

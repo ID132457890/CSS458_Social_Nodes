@@ -62,16 +62,22 @@ def find_distance(agent1, agent2):
     Taken from http://andrew.hedges.name/experiments/haversine/
     Permission granted by terms specified on source page
     """
-    dlon = agent1.location[0] - agent2.location[0]
-    dlat = agent1.location[1] - agent2.location[1]
-    a = (math.sin(dlat / 2)) ^ 2 + math.cos(agent1.location[1]) * \
-         math.cos(agent2.location[1]) * (math.sin(dlon / 2)) ^ 2
+    dlon = math.radians(agent1.location[0]) - math.radians(agent2.location[0])
+    dlat = math.radians(agent1.location[1]) - math.radians(agent2.location[1])
+    a = (math.sin(dlat / 2)) ** 2 + math.cos(math.radians(agent1.location[1])) * \
+         math.cos(math.radians(agent2.location[1])) * (math.sin(dlon / 2)) ** 2
     c = 2 * math.atan2(a ** .5, (1 - a) ** .5)
     return 3961 * c
 
 class ModelTests(unittest.TestCase):
     def tests(self):
         m = Model()
+        seattleperson = Person.Person(m, location=(-122, -48))
+        newyorkperson = Person.Person(m, location=(-74, -40))
+        jakartaperson = Person.Person(m, location=(107, 6))
+        self.assertEquals(int(find_distance(seattleperson, newyorkperson)), 2409)
+        self.assertEquals(int(find_distance(newyorkperson, jakartaperson)), 10092)
+        self.assertEquals(int(find_distance(jakartaperson, seattleperson)), 8361)
         m.run_simulation()
 
 if __name__ == "__main__":

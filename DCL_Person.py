@@ -20,6 +20,8 @@ class Person(object):
 
         if location is None:
             self.location = (random.randint(-180, 180), random.randint(-80, 80))
+        else:
+            self.location = location
 
     def take_turn(self):
         # decide to create a post or not
