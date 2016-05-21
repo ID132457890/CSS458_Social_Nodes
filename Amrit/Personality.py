@@ -91,7 +91,9 @@ class Introvert(Personality):
         self.distancePreference = 0.2
         self.topicPreference = 0.8
         
-        self.postPreference = 0.9
+        self.postPreference = 0.2
+        
+        self.sharePreference = 0.2
         
         self.maxDistance = 3
         

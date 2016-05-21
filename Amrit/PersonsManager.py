@@ -43,32 +43,33 @@ class PersonsManager(object):
         return None
         
     def getTrendingTopics(self):
-        likedTopics = {}
+        likedTopics = []
+        bestTopic = [0,VR.MIN_TOPIC_VALUE * 2.0]
         
         for person in self.people:
             topic = person.getMostLikedTopic()
             
-            if topic.keys()[0] in likedTopics:
-                likedTopics[topic.keys()[0]] += topic[topic.keys()[0]]
-            else:
-                likedTopics[topic.keys()[0]] = topic[topic.keys()[0]]
-                
-        sortedLikedTopics = sorted(likedTopics, key=likedTopics.get)
+            likedTopics.append(topic)
         
-        dislikedTopics = {}
+        for topic in likedTopics:
+            if topic[1] >= bestTopic[1]:
+                bestTopic[0] = topic[0]
+                bestTopic[1] = topic[1]
+                
+        dislikedTopics = []
+        worstTopic = [0,VR.MAX_TOPIC_VALUE * 2.0]
         
         for person in self.people:
             topic = person.getMostDislikedTopic()
-            print(topic)
             
-            if topic.keys()[0] in dislikedTopics:
-                dislikedTopics[topic.keys()[0]] += topic[topic.keys()[0]]
-            else:
-                dislikedTopics[topic.keys()[0]] = topic[topic.keys()[0]]
-                
-        sortedDislikedTopics = sorted(dislikedTopics, key=dislikedTopics.get)
+            dislikedTopics.append(topic)
         
-        return [sortedLikedTopics[0], sortedDislikedTopics[0]]
+        for topic in dislikedTopics:
+            if topic[1] <= worstTopic[1]:
+                worstTopic[0] = topic[0]
+                worstTopic[1] = topic[1]
+        
+        return [bestTopic[0], worstTopic[0]]
         
     def startOnline(self, person=None):
         if person == None:
@@ -173,9 +174,10 @@ class PersonsManager(object):
         V.Visualizer.sharedVisualizer.addPostsSent(len(self.postsSent))
         V.Visualizer.sharedVisualizer.addPostsShared(len(self.postsShared))
         V.Visualizer.sharedVisualizer.addAvgFriends(self.getAverageFriends())
-        V.Visualizer.sharedVisualizer.addAvgIgnored(self.getAverageFriends())
+        V.Visualizer.sharedVisualizer.addAvgIgnored(self.getAverageIgnored())
         V.Visualizer.sharedVisualizer.addAvgLikeness(self.getAverageLikeness())
         V.Visualizer.sharedVisualizer.addAvgFriendsDistance(self.getAverageFriendsDistance())
+        V.Visualizer.sharedVisualizer.addAvgIgnoredDistance(self.getAverageIgnoredDistance())
         V.Visualizer.sharedVisualizer.addAvgMissed(self.getAverageMissed())
         V.Visualizer.sharedVisualizer.addOnlinePeople(self.getOnlinePeople())
         #V.Visualizer.sharedVisualizer.pause()

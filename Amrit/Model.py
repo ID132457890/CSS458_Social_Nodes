@@ -12,7 +12,7 @@ class Model(object):
         V.Visualizer.createVisualizer()
         TM.TimeManager.createManager()
     
-    def spawnAgents(self, count=20):
+    def spawnAgents(self, count=100):
         
         for num in range(0, count):
             position = PE.Position(N.random.uniform(-100, 100), N.random.uniform(-100, 100))

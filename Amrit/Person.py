@@ -102,24 +102,26 @@ class Person(object):
         return distance
     
     def getMostLikedTopic(self):
-        theTopic = {0:-20}
+        theTopic = 0
+        topicLikeness = VR.MIN_TOPIC_VALUE * 2
         
         for topic in self.personality.topics.keys():
-            if self.personality.topics[topic] >= theTopic[theTopic.keys()[0]]:
-                theTopic = {}
-                theTopic[topic] = self.personality.topics[topic]
+            if self.personality.topics[topic] >= topicLikeness:
+                theTopic = topic
+                topicLikeness = self.personality.topics[topic]
                 
-        return theTopic
+        return [theTopic, topicLikeness]
         
     def getMostDislikedTopic(self):
-        theTopic = {0:20}
+        theTopic = 0
+        topicLikeness = VR.MAX_TOPIC_VALUE * 2
         
         for topic in self.personality.topics.keys():
-            if self.personality.topics[topic] <= theTopic[theTopic.keys()[0]]:
-                theTopic = {}
-                theTopic[topic] = self.personality.topics[topic]
-        
-        return theTopic
+            if self.personality.topics[topic] <= topicLikeness:
+                theTopic = topic
+                topicLikeness = self.personality.topics[topic]
+                
+        return [theTopic, topicLikeness]
         
     def getEdges(self):
         edges = []
@@ -174,6 +176,8 @@ class Person(object):
             for key in self.personality.topics:
                 if self.personality.topics[key] > 0:
                     chosenTopics.append(key)
+            
+            #PM.PersonsManager.sharedManager.startOnline(person=self)
             
             post = PO.Post(chosenTopics, self.ID)
             PM.PersonsManager.sharedManager.broadcastPost(post)

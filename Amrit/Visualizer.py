@@ -197,7 +197,9 @@ class Visualizer(object):
         plt.figure(self.postsSentFig.number)
         
         self.postsSentFig.clear()
-        self.postsSentFig.add_subplot(111).plot(range(len(self.postsSent)), self.postsSent)
+        sub = self.postsSentFig.add_subplot(111)
+        sub.plot(range(len(self.postsSent)), self.postsSent)
+        sub.set_title("Posts sent vs time")
         self.postsSentFig.show()
         
         plt.pause(0.1)
@@ -206,7 +208,9 @@ class Visualizer(object):
         plt.figure(self.postsSharedFig.number)
         
         self.postsSharedFig.clear()
-        self.postsSharedFig.add_subplot(111).plot(range(len(self.postsShared)), self.postsShared)
+        sub = self.postsSharedFig.add_subplot(111)
+        sub.plot(range(len(self.postsShared)), self.postsShared)
+        sub.set_title("Posts shared vs time")
         self.postsSharedFig.show()
         
         plt.pause(0.1)
@@ -215,7 +219,9 @@ class Visualizer(object):
         plt.figure(self.avgFriendsFig.number)
         
         self.avgFriendsFig.clear()
-        self.avgFriendsFig.add_subplot(111).plot(range(len(self.avgFriends)), self.avgFriends)
+        sub = self.avgFriendsFig.add_subplot(111)
+        sub.plot(range(len(self.avgFriends)), self.avgFriends)
+        sub.set_title("Average # of friends vs time")
         self.avgFriendsFig.show()
         
         plt.pause(0.1)
@@ -224,7 +230,9 @@ class Visualizer(object):
         plt.figure(self.avgIgnoredFig.number)
         
         self.avgIgnoredFig.clear()
-        self.avgIgnoredFig.add_subplot(111).plot(range(len(self.avgIgnored)), self.avgIgnored)
+        sub = self.avgIgnoredFig.add_subplot(111)
+        sub.plot(range(len(self.avgIgnored)), self.avgIgnored)
+        sub.set_title("Average # of ignored vs time")
         self.avgIgnoredFig.show()
         
         plt.pause(0.1)
@@ -233,7 +241,9 @@ class Visualizer(object):
         plt.figure(self.avgLikenessFig.number)
         
         self.avgLikenessFig.clear()
-        self.avgLikenessFig.add_subplot(111).plot(range(len(self.avgLikeness)), self.avgLikeness)
+        sub = self.avgLikenessFig.add_subplot(111)
+        sub.plot(range(len(self.avgLikeness)), self.avgLikeness)
+        sub.set_title("Average likeness level vs time")
         self.avgLikenessFig.show()
         
         plt.pause(0.1)
@@ -242,7 +252,9 @@ class Visualizer(object):
         plt.figure(self.avgFriendsDistanceFig.number)
         
         self.avgFriendsDistanceFig.clear()
-        self.avgFriendsDistanceFig.add_subplot(111).plot(range(len(self.avgFriendsDistance)), self.avgFriendsDistance)
+        sub = self.avgFriendsDistanceFig.add_subplot(111)
+        sub.plot(range(len(self.avgFriendsDistance)), self.avgFriendsDistance)
+        sub.set_title("Average friend distance vs time")
         self.avgFriendsDistanceFig.show()
         
         plt.pause(0.1)
@@ -251,7 +263,9 @@ class Visualizer(object):
         plt.figure(self.avgIgnoredDistanceFig.number)
         
         self.avgIgnoredDistanceFig.clear()
-        self.avgIgnoredDistanceFig.add_subplot(111).plot(range(len(self.avgIgnoredDistance)), self.avgIgnoredDistance)
+        sub = self.avgIgnoredDistanceFig.add_subplot(111)
+        sub.plot(range(len(self.avgIgnoredDistance)), self.avgIgnoredDistance)
+        sub.set_title("Average ignored distance vs time")
         self.avgIgnoredDistanceFig.show()
         
         plt.pause(0.1)
@@ -260,7 +274,9 @@ class Visualizer(object):
         plt.figure(self.avgMissedFig.number)
         
         self.avgMissedFig.clear()
-        self.avgMissedFig.add_subplot(111).plot(range(len(self.avgMissed)), self.avgMissed)
+        sub = self.avgMissedFig.add_subplot(111)
+        sub.plot(range(len(self.avgMissed)), self.avgMissed)
+        sub.set_title("Average missed opportunities vs time")
         self.avgMissedFig.show()
         
         plt.pause(0.1)
@@ -269,7 +285,9 @@ class Visualizer(object):
         plt.figure(self.onlinePeopleFig.number)
         
         self.onlinePeopleFig.clear()
-        self.onlinePeopleFig.add_subplot(111).plot(range(len(self.onlinePeople)), self.onlinePeople)
+        sub = self.onlinePeopleFig.add_subplot(111)
+        sub.plot(range(len(self.onlinePeople)), self.onlinePeople)
+        sub.set_title("People becoming online vs time")
         self.onlinePeopleFig.show()
         
         plt.pause(0.1)
