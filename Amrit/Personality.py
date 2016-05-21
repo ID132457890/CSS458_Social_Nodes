@@ -51,9 +51,20 @@ class Personality(object):
                 friendLikeness = 1.0
             else:
                 friendLikeness = -1.0
+                
+        influenceLikeness = 0
         
+        influenceRandom = N.random.uniform(0.0, 1.0)
+        if influenceRandom <= self.influencePreference:
+            if PM.PersonsManager.sharedManager.getTrendingTopics()[0] in post.topics:
+                influenceLikeness = 1.0
+                PM.PersonsManager.sharedManager.trendInfluences += 1
+                
+            elif PM.PersonsManager.sharedManager.getTrendingTopics()[1] in post.topics:
+                influenceLikeness = -1.0
+                PM.PersonsManager.sharedManager.trendInfluences += 1
         
-        return distanceLikeness + topicLikeness + friendLikeness
+        return distanceLikeness + topicLikeness + friendLikeness + influenceLikeness
     
     def shouldSharePost(self):
         random = N.random.randint(0.0, 1.0)
@@ -75,8 +86,10 @@ class Personality(object):
 class Introvert(Personality):
     
     def __init__(self, topics={1:3, 2:-4, 3:-5, 7: 2}):
+        self.topics = {}
+        
         self.distancePreference = 0.2
-        self.topicPreference = 0.9
+        self.topicPreference = 0.8
         
         self.postPreference = 0.9
         

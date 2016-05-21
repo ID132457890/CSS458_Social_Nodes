@@ -16,6 +16,35 @@ class Visualizer(object):
     
     mainGraph = nx.Graph()
     
+    mainGraphFig = None
+    
+    postsSentFig = None
+    postsSent = []
+    
+    postsSharedFig = None
+    postsShared = []
+    
+    avgFriendsFig = None
+    avgFriends = []
+    
+    avgIgnoredFig = None
+    avgIgnored = []
+    
+    avgLikenessFig = None
+    avgLikeness = []
+    
+    avgFriendsDistanceFig = None
+    avgFriendsDistance = []
+    
+    avgIgnoredDistanceFig = None
+    avgIgnoredDistance = []
+    
+    avgMissedFig = None
+    avgMissed = []
+    
+    onlinePeopleFig = None
+    onlinePeople = []
+    
     graphs = []
     nodes = []
     edges = {}
@@ -23,6 +52,36 @@ class Visualizer(object):
     @staticmethod
     def createVisualizer():
         Visualizer.sharedVisualizer = Visualizer()
+        
+    def __init__(self):
+        self.postsSentFig = plt.figure()
+        self.postsSent = []
+        
+        self.postsSharedFig = plt.figure()
+        self.postsShared = []
+        
+        self.avgFriendsFig = plt.figure()
+        self.avgFriends = []
+        
+        self.avgIgnoredFig = plt.figure()
+        self.avgIgnored = []
+        
+        self.avgLikenessFig = plt.figure()
+        self.avgLikeness = []
+        
+        self.avgFriendsDistanceFig = plt.figure()
+        self.avgFriendsDistance = []
+        
+        self.avgIgnoredDistanceFig = plt.figure()
+        self.avgIgnoredDistance = []
+        
+        self.avgMissedFig = plt.figure()
+        self.avgMissed = []
+        
+        self.onlinePeopleFig = plt.figure()
+        self.onlinePeople = []
+        
+        self.mainGraphFig = plt.figure()
     
     def addNode(self, node):
         item = VItem(node, TM.TimeManager.sharedManager.time)
@@ -49,6 +108,51 @@ class Visualizer(object):
             
         self.updateGraph(graph, widths)
         
+    def addPostsSent(self, postsSent):
+        self.postsSent.append(postsSent)
+        
+        self.updatePostsSentTimeGraph()
+        
+    def addPostsShared(self, postsShared):
+        self.postsShared.append(postsShared)
+        
+        self.updatePostsSharedTimeGraph()
+        
+    def addAvgFriends(self, friends):
+        self.avgFriends.append(friends)
+        
+        self.updateAvgFriendsGraph()
+        
+    def addAvgIgnored(self, ignored):
+        self.avgIgnored.append(ignored)
+        
+        self.updateAvgIgnoredGraph()
+        
+    def addAvgLikeness(self, likeness):
+        self.avgLikeness.append(likeness)
+        
+        self.updateAvgLikenessGraph()
+        
+    def addAvgFriendsDistance(self, distance):
+        self.avgFriendsDistance.append(distance)
+        
+        self.updateAvgFriendsDistanceGraph()
+        
+    def addAvgIgnoredDistance(self, distance):
+        self.avgIgnoredDistance.append(distance)
+        
+        self.updateAvgIgnoredDistanceGraph()
+        
+    def addAvgMissed(self, missed):
+        self.avgMissed.append(missed)
+        
+        self.updateAvgMissedGraph()
+        
+    def addOnlinePeople(self, people):
+        self.onlinePeople.append(people)
+        
+        self.updateOnlinePeopleGraph()
+        
     def connect(self, fromNode, toNode, weight):
         if (toNode, fromNode) in self.edges.keys():
             self.edges[(toNode, fromNode)] = weight
@@ -73,7 +177,8 @@ class Visualizer(object):
             #self.updateMainGraph(edge={(fromNode, toNode): weight})
     
     def updateGraph(self, graph, widths):
-        plt.clf()
+        plt.figure(self.mainGraphFig.number)
+        self.mainGraphFig.clear()
         
         nodes = graph.nodes()
         
@@ -82,10 +187,92 @@ class Visualizer(object):
             positions[node] = (node.position.x, node.position.y)
         
         if len(widths) != 0:
-            nx.draw(graph, pos=positions, width=widths)
+            nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths)
         
-            plt.show()
-            plt.pause(0.5)
+            self.mainGraphFig.show()
+            
+        plt.pause(0.1)
+            
+    def updatePostsSentTimeGraph(self):
+        plt.figure(self.postsSentFig.number)
+        
+        self.postsSentFig.clear()
+        self.postsSentFig.add_subplot(111).plot(range(len(self.postsSent)), self.postsSent)
+        self.postsSentFig.show()
+        
+        plt.pause(0.1)
+        
+    def updatePostsSharedTimeGraph(self):
+        plt.figure(self.postsSharedFig.number)
+        
+        self.postsSharedFig.clear()
+        self.postsSharedFig.add_subplot(111).plot(range(len(self.postsShared)), self.postsShared)
+        self.postsSharedFig.show()
+        
+        plt.pause(0.1)
+        
+    def updateAvgFriendsGraph(self):
+        plt.figure(self.avgFriendsFig.number)
+        
+        self.avgFriendsFig.clear()
+        self.avgFriendsFig.add_subplot(111).plot(range(len(self.avgFriends)), self.avgFriends)
+        self.avgFriendsFig.show()
+        
+        plt.pause(0.1)
+        
+    def updateAvgIgnoredGraph(self):
+        plt.figure(self.avgIgnoredFig.number)
+        
+        self.avgIgnoredFig.clear()
+        self.avgIgnoredFig.add_subplot(111).plot(range(len(self.avgIgnored)), self.avgIgnored)
+        self.avgIgnoredFig.show()
+        
+        plt.pause(0.1)
+        
+    def updateAvgLikenessGraph(self):
+        plt.figure(self.avgLikenessFig.number)
+        
+        self.avgLikenessFig.clear()
+        self.avgLikenessFig.add_subplot(111).plot(range(len(self.avgLikeness)), self.avgLikeness)
+        self.avgLikenessFig.show()
+        
+        plt.pause(0.1)
+        
+    def updateAvgFriendsDistanceGraph(self):
+        plt.figure(self.avgFriendsDistanceFig.number)
+        
+        self.avgFriendsDistanceFig.clear()
+        self.avgFriendsDistanceFig.add_subplot(111).plot(range(len(self.avgFriendsDistance)), self.avgFriendsDistance)
+        self.avgFriendsDistanceFig.show()
+        
+        plt.pause(0.1)
+    
+    def updateAvgIgnoredDistanceGraph(self):
+        plt.figure(self.avgIgnoredDistanceFig.number)
+        
+        self.avgIgnoredDistanceFig.clear()
+        self.avgIgnoredDistanceFig.add_subplot(111).plot(range(len(self.avgIgnoredDistance)), self.avgIgnoredDistance)
+        self.avgIgnoredDistanceFig.show()
+        
+        plt.pause(0.1)
+        
+    def updateAvgMissedGraph(self):
+        plt.figure(self.avgMissedFig.number)
+        
+        self.avgMissedFig.clear()
+        self.avgMissedFig.add_subplot(111).plot(range(len(self.avgMissed)), self.avgMissed)
+        self.avgMissedFig.show()
+        
+        plt.pause(0.1)
+        
+    def updateOnlinePeopleGraph(self):
+        plt.figure(self.onlinePeopleFig.number)
+        
+        self.onlinePeopleFig.clear()
+        self.onlinePeopleFig.add_subplot(111).plot(range(len(self.onlinePeople)), self.onlinePeople)
+        self.onlinePeopleFig.show()
+        
+        plt.pause(0.1)
     
     def updateMainGraph(self, node=None, edge=None):
         if node != None:
@@ -103,3 +290,6 @@ class Visualizer(object):
                                   edgelist=[firstKey])
                                                     
         plt.show()
+        
+    def pause(self):
+        plt.pause(0.5)

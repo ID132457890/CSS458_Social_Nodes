@@ -15,7 +15,7 @@ class Model(object):
     def spawnAgents(self, count=20):
         
         for num in range(0, count):
-            position = PE.Position(N.random.uniform(-10, 10), N.random.uniform(-10, 10))
+            position = PE.Position(N.random.uniform(-100, 100), N.random.uniform(-100, 100))
             
             PM.PersonsManager.sharedManager.addPerson(position)
             

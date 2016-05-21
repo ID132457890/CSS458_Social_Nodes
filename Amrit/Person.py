@@ -31,6 +31,9 @@ class Person(object):
     friendsList = {}
     ignoredList = {}
     
+    likes = 0
+    missed = 0
+    
     allPosts = []
     receivedPosts = []
     
@@ -38,6 +41,8 @@ class Person(object):
         self.position = position
         self.connectedPeople = {}
         
+        self.likes = 0
+        self.missed = 0
         self.allPosts = []
         self.receivedPosts = []
         
@@ -59,6 +64,63 @@ class Person(object):
                 
         return friends
         
+    def getIgnored(self):
+        ignored = []
+        
+        for personID in self.connectedPeople.keys():
+            if self.connectedPeople[personID] <= VR.ENEMY_LIMIT:
+                ignored.append(personID)
+                
+        return ignored
+        
+    def getAvgFriendsDistance(self):
+        friends = self.getFriends()
+        distance = 0.0
+        
+        if len(friends) != 0:
+            for personID in friends:
+                person = PM.PersonsManager.sharedManager.getPersonFromID(personID)
+            
+                distance += person.position.distanceFrom(self.position)
+            
+            distance /= len(friends)
+            
+        return distance
+        
+    def getAvgIgnoredDistance(self):
+        ignored = self.getIgnored()
+        distance = 0.0
+        
+        if len(ignored) != 0:
+            for personID in ignored:
+                person = PM.PersonsManager.sharedManager.getPersonFromID(personID)
+            
+                distance += person.position.distanceFrom(self.position)
+            
+            distance /= len(ignored)
+            
+        return distance
+    
+    def getMostLikedTopic(self):
+        theTopic = {0:-20}
+        
+        for topic in self.personality.topics.keys():
+            if self.personality.topics[topic] >= theTopic[theTopic.keys()[0]]:
+                theTopic = {}
+                theTopic[topic] = self.personality.topics[topic]
+                
+        return theTopic
+        
+    def getMostDislikedTopic(self):
+        theTopic = {0:20}
+        
+        for topic in self.personality.topics.keys():
+            if self.personality.topics[topic] <= theTopic[theTopic.keys()[0]]:
+                theTopic = {}
+                theTopic[topic] = self.personality.topics[topic]
+        
+        return theTopic
+        
     def getEdges(self):
         edges = []
         
@@ -75,11 +137,13 @@ class Person(object):
             sender = PM.PersonsManager.sharedManager.getPersonFromID(post.senderID)
             self.allPosts.append(post)
             
+            likeness = self.personality.evaluatePost(self, post)
+            
             if ((post.senderID in self.connectedPeople) == False) or ((post.senderID in self.connectedPeople) and \
                 self.connectedPeople[post.senderID] > VR.ENEMY_LIMIT):
                 self.receivedPosts.append(post)
-        
-                likeness = self.personality.evaluatePost(self, post)
+                
+                self.likes += likeness
                 
                 if post.senderID in self.connectedPeople:
                     self.connectedPeople[post.senderID] += likeness
@@ -88,9 +152,16 @@ class Person(object):
             
                 PM.PersonsManager.sharedManager.startOnline(person=self)
         
+            elif self.connectedPeople[post.senderID] > VR.ENEMY_LIMIT:
+                if likeness > 0:
+                    self.missed += 1
+        
                 #V.Visualizer.sharedVisualizer.connect(self, sender, self.connectedPeople[post.senderID])
         
     def sharePosts(self):
+        self.likes = 0.0
+        self.missed = 0
+        
         for post in list(self.receivedPosts):
             if self.personality.shouldSharePost():
                 PM.PersonsManager.sharedManager.sharePost(post, self.getFriends())
