@@ -10,7 +10,7 @@ import math
 import random
 
 class Model(object):
-    def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 20, enemies_affinity = -15,
+    def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 15, enemies_affinity = -15,
                  time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05):
         self.logger = L.Logger(self, options = {'threshold': 3})
         self.agents = []

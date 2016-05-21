@@ -82,7 +82,7 @@ class Person(object):
 
                 if poster_affinity >= self.friends_affinity:
                     self.friends.add(message.sender)
-                    message.sender.friends.add(self)
+                    #message.sender.friends.add(self)
                     self.model.logger.log(1, "%r became friends with %r"% (self, message.sender))
                 elif poster_affinity <= self.enemies_affinity:
                     if message.sender in self.friends:
@@ -95,16 +95,21 @@ class Person(object):
             # ignore message
             pass
 
+    def spam_to_world(self):
+        return self.personality.spam_to_world()
+
     def dispatch_post(self, post):
         for friend in self.friends:
             self.model.logger.log(0, "%r dispatching post %r to %r" % (self, post, friend))
 
             # if this is a repost, see if receiver will accept it
-            if post.sender != self:
-                if not friend.accept_repost():
-                    return None
+            if post.sender != self and friend.accept_repost():
+                friend.receive_post(post)
 
-            friend.receive_post(post)
+        if post.sender.spam_to_world():
+            num_to_spam = int(len(self.model.online_agents) / 100)
+            for x in range (num_to_spam):
+                self.model.online_agents[random.randint(0, len(self.model.online_agents) - 1)].receive_post(post)
 
     def decay_relationships(self):
         """

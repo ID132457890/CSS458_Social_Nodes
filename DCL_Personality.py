@@ -52,8 +52,9 @@ class Personality(object):
         self.model = model
 
         self.post_probabilty = random.random()
-        self.repost_probability = random.random()
+        self.repost_probability = random.random() * 1.5
         self.probability_read_reposts = random.random()
+        self.fame = random.random() * 100
 
     def accept_repost(self):
         if random.random() < self.probability_read_reposts:
@@ -82,12 +83,19 @@ class Personality(object):
                 post_topic.append(self.interests[keys[random.randint(0, len(keys)-1)]])
             return Post.Post(self.person, post_topic)
 
+    def spam_to_world(self):
+        if self.fame > 98:
+            return True
+        else:
+            return False
 
     def repost_decide(self, message):
         # just repost 50% for now
-        if random.random() < self.repost_probability:
+        if message.sender.personality.fame < 98:
+            if random.random() < self.repost_probability:
+                self.person.dispatch_post(message)
+        else:
             self.person.dispatch_post(message)
-
 
 
 
