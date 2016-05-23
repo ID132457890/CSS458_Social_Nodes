@@ -1,9 +1,9 @@
 import numpy as N
 
-import Personality as PT
+import Old_Personality as PT
 import Visualizer as V
 import PersonsManager as PM
-import Post as PO
+import Old_Post as PO
 import Variables as VR
 
 class Position(object):

@@ -1,6 +1,6 @@
 import random
-import DCL_Personality as Personality
-import DCL_Post as Post
+import Personality as Personality
+import Post as Post
 
 class Person(object):
     def __init__(self, model, location = None, friends_affinity = 150, enemies_affinity = -200,

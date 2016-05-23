@@ -4,8 +4,8 @@ Overall simulation manager that carries variables and settings that will change 
 
 import Logger as L
 import unittest
-import DCL_Person as Person
-import DCL_Personality as Personality
+import Person as Person
+import Personality as Personality
 import math
 import random
 

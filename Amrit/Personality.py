@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as N
 import Person as PE
-import Post as PO
+import Old_Post as PO
 import PersonsManager as PM
 import Variables as VR
 
