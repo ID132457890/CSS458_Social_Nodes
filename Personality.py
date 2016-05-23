@@ -2,15 +2,31 @@ import random
 import Post as Post
 import Model
 
-def random_personality_generator(personality, model):
+repost_probability_mutiplier = 1.5
+hemisphere_liking = 2
+hemisphere_disliking = -2
+close_liking_multiplier = 1.5
+distant_liking_multiplier = 1.5
+percent_probability_famous = 2
+
+# For random personality generator - Both of these must sum to <= 1
+prob_to_like = .5
+prob_to_dislike = .3
+
+# Tuple containing the minimum and maximum magnitude of a like or dislike
+amount_to_like_dislike = (1,15)
+
+
+def random_personality_generator(model):
+    """
+    Randomly allocate likes and dislikes to a person for a subset of the total topics in the simulation
+
+    :param model: reference to model object
+    :return: mapping of likes and dislikes for this person
+    """
     num_of_topics = model.topics
 
     likemap = None
-    # both of these need to sum to <= 1
-    prob_to_like = .5
-    prob_to_dislike = .3
-
-    amount_to_like_dislike = (1,15)
 
     # put in a loop in case no likes get selected
     while likemap is None or len(likemap) == 0:
@@ -28,7 +44,16 @@ def random_personality_generator(personality, model):
 
     return likemap
 
+
 def random_facets(personality, model):
+    """
+    Randomly allocates personality facets to a person and establishes the chain of facets for processing
+    a message.
+
+    :param personality: reference to personality object
+    :param model: reference to model object
+    :return: first personality facet in facet chain
+    """
     options = (eval('PersonalityFacet.__subclasses__()'))
     selected = []
     num_to_select = len(options) / 2
@@ -43,26 +68,50 @@ def random_facets(personality, model):
         selected[x] = selected[x](selected[x+1])
     return selected[0]
 
+
 class Personality(object):
+    """
+    Personality class that defines the behavior of a personality
+    """
+
     def __init__(self, person, model, generator = random_personality_generator,
                  facet_generator = random_facets):
+        """
+        Create a personality for an agent
+
+        :param person: person for which to create a personality for
+        :param model: reference to model object
+        :param generator: generator to use for generating the personality
+        :param facet_generator: generator to use for creating personalty facets for this personality
+        """
+
         self.person = person
-        self.interests = generator(self, model)
+        self.interests = generator(model)
         self.facets = facet_generator(self, model)
         self.model = model
-
         self.post_probabilty = random.random()
-        self.repost_probability = random.random() * 1.5
+        self.repost_probability = random.random() * repost_probability_mutiplier
         self.probability_read_reposts = random.random()
         self.fame = random.random() * 100
 
     def accept_repost(self):
+        """
+        Determines if a reposted message will be accepted.
+        :return: Boolean of whether to accept the message repost
+        """
         if random.random() < self.probability_read_reposts:
             return True
         else:
             return False
 
     def process_post(self, message):
+        """
+        Accepts a message, and using the settings defined in the person's personality, determine whether, and
+        by how much, a message is liked.
+
+        :param message: message to process
+        :return: amount that the message was liked or disliked
+        """
         like_total = 0
 
         for topic in message.topics:
@@ -75,6 +124,10 @@ class Personality(object):
         return like_total
 
     def create_post(self):
+        """
+        Generates a post with a random subset of the person's interests
+        :return: message to post
+        """
         if random.random() < self.post_probabilty:
             keys = list(self.interests.keys())
             post_topic = []
@@ -84,25 +137,35 @@ class Personality(object):
             return Post.Post(self.person, post_topic)
 
     def spam_to_world(self):
-        if self.fame > 98:
+        """
+        Determines if a post should be randomly spammed.  Currently based only the the 'fame' attribute
+        of a personality of the agent which posted the message.
+
+        :return: True if a post should be randomly spammed to other agents
+        """
+        if self.fame > (100 - percent_probability_famous):
             return True
         else:
             return False
 
     def repost_decide(self, message):
-        # just repost 50% for now
-        if message.sender.personality.fame < 98:
+        """
+        Determines if a message will be reposted.  Currently all "famous" reposts are reposted,
+        and messages from non-famous agents are reposted at a variable probability level
+
+        :param message: message which is a candidate for being reposted
+        :return: nothing
+        """
+        if message.sender.personality.fame < (100 - percent_probability_famous):
             if random.random() < self.repost_probability:
                 self.person.dispatch_post(message)
         else:
             self.person.dispatch_post(message)
 
 
-
-
 class PersonalityFacet(object):
     """
-    Decorator design pattern to allow arbitrary number of personality "facets" that can manipulate the
+    Decorator to allow arbitrary number of personality "facets" that can manipulate the
     end result of how much a post is liked or disliked
     """
     def __init__(self, next_facet = None):
@@ -119,46 +182,35 @@ class PersonalityFacet(object):
         return self.next_facet.return_result(message, current_score, person)
 
 
-class LikesEveryOddTopicNumber(PersonalityFacet):
-    def process_post(self, message, current_score, person):
-        for topic in message.topics:
-            if topic % 2 == 1:
-                current_score += 1
-        return self.return_result(message, current_score, person)
-
-class LikesEveryEvenTopicNumber(PersonalityFacet):
-    def process_post(self, message, current_score, person):
-        for topic in message.topics:
-            if topic % 2 == 0:
-                current_score += 1
-        return self.return_result(message, current_score, person)
-
 class LikesClosePeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
         if distance < 2000 and current_score > 0:
-            current_score *= 1.5 if current_score > 0 else 0.5
+            current_score *= close_liking_multiplier if current_score > 0 else 1 / close_liking_multiplier
         return self.return_result(message, current_score, person)
+
 
 class LikesDistantPeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
         if distance > 2000 and current_score > 0:
-            current_score *= 1.5 if current_score > 0 else 0.5
+            current_score *= distant_liking_multiplier if current_score > 0 else 1 / distant_liking_multiplier
         return self.return_result(message, current_score, person)
+
 
 class HatesPeopleInOppositeHemisphere(PersonalityFacet):
     def process_post(self, message, current_score, person):
         if person.location[0] * message.sender.location[0] < 0:
-            current_score += - 2
+            current_score += hemisphere_disliking
         if person.location[1] * message.sender.location[1] < 0:
-            current_score += - 2
+            current_score += hemisphere_disliking
         return self.return_result(message, current_score, person)
+
 
 class LovesPeopleInOppositeHemisphere(PersonalityFacet):
     def process_post(self, message, current_score, person):
         if person.location[0] * message.sender.location[0] < 0:
-            current_score += 2
+            current_score += hemisphere_liking
         if person.location[1] * message.sender.location[1] < 0:
-            current_score += 2
+            current_score += hemisphere_liking
         return self.return_result(message, current_score, person)
