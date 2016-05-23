@@ -230,7 +230,7 @@ class ModelTests(unittest.TestCase):
     Some basic test cases for module
     """
 
-    
+
     def tests(self):
         m = Model()
         seattleperson = Person.Person(m, location=(-122, -48))
