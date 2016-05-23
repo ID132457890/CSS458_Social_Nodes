@@ -1,3 +1,12 @@
+"""
+CSS 458 Spring Quarter 2016
+Social Nodes Project
+
+Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
+
+File containing the classes necessary for an agent's personality
+"""
+
 import random
 import Post as Post
 import Model

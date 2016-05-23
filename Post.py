@@ -1,3 +1,12 @@
+"""
+CSS 458 Spring Quarter 2016
+Social Nodes Project
+
+Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
+
+Module for the post object
+"""
+
 class Post(object):
     """
     Post object, currently contains no behavior
