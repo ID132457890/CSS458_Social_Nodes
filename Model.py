@@ -1,5 +1,12 @@
 """
-Overall simulation manager that carries variables and settings that will change the model
+CSS 458 Spring Quarter 2016
+Social Nodes Project
+
+Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
+
+Overall simulation manager that carries variables and settings that will change the model.
+This class will initiate the social nodes simulation and call appropriate statistics generation
+and visualization modules.
 """
 
 import Logger as L
@@ -9,9 +16,27 @@ import Personality as Personality
 import math
 import random
 
+
 class Model(object):
+    """
+    Model class acts as the simulation manager that carries variables and settings.
+    """
+
     def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 15, enemies_affinity = -15,
                  time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05):
+        """
+        :param num_agents: Maximum number of agents for the simulation
+        :param topics: Number of topics of interest
+        :param friends_affinity: Affinity score required for an agent to become friends with another agent
+        :param enemies_affinity: Affinity score required for an agent to become enemies with another agent
+        :param time_to_run: Number of rounds before ending simulation
+        :param probability_initially_online: The probability that an agent is connected to internet at the
+                                             beginning of the simulation
+        :param probability_become_online: The probability that an agent who is not online will become connected
+                                          to the internet at each round
+        """
+
+        # Instance variables for simulation's configuration
         self.logger = L.Logger(self, options = {'threshold': 3})
         self.agents = []
         self.online_agents = []
@@ -23,12 +48,19 @@ class Model(object):
         self.probability_initially_online = probability_initially_online
         self.probability_become_online = probability_become_online
         self.agents_to_settle = set()
+
+        # Counters for statistics
         self.messages_sent = 0
         self.messages_received = 0
 
+        # Create agents for simulation
         self.spawn_agents(num_agents)
 
     def run_simulation(self):
+        """
+        Loops through each agent fo rthe specified number of rounds.
+        :return: Nothing
+        """
 
         for x in range (self.time_to_run):
             for agent in self.agents:
@@ -43,12 +75,22 @@ class Model(object):
         # self.analytics.finish_analyze()
 
     def request_post_attention(self, agent):
+        """
+        Method called by agents that have recieved a message, so that the message can be processed before
+        proceeding to the next agent's turn.
+        """
         self.agents_to_settle.add(agent)
 
     def spawn_agents(self, num_agents):
+        """
+        Spawn the specified number of agents
+        :param num_agents: Number of agents to spawn
+        :return: nothing
+        """
         for x in range(num_agents):
             self.agents.append(Person.Person(self, personality = Personality.Personality,
                                friends_affinity = self.friends_affinity, enemies_affinity = self.enemies_affinity))
+            # Determine if this agent will be online at the start of the simulation
             if random.random() < self.probability_initially_online:
                 self.agents[x].online = True
                 self.online_agents.append(self.agents[x])
@@ -58,7 +100,13 @@ class Model(object):
             self.initial_connect_friend(agent)
 
     def initial_connect_friend(self, agent):
-        # just random for now, will make more complex later
+        """
+        Create a random friend connection for the speciifed agent
+
+        :param agent: Agent for which to make new friend connection(s)
+        :return: nothing
+        """
+        # Randomly decide to create 2 friend connections or 1
         if random.random() < .40:
             num_friends = 2
         else:
@@ -66,12 +114,21 @@ class Model(object):
 
         for x in range(num_friends):
             friend_to_add = None
+
+            # randomly choose a friend and ensure friend isn't itself
             while friend_to_add is None or friend_to_add == agent:
                 friend_to_add = self.online_agents[random.randint(0, len(self.online_agents) - 1)]
+
             agent.friends.add(friend_to_add)
             friend_to_add.friends.add(agent)
 
     def generate_statistics(self, timestep):
+        """
+        Method generates some basic statistics that are created each time step and sent to the logger.
+
+        :param timestep: Integer specifying the current time step
+        :return: nothing
+        """
         total_friends = 0
         total_enemies = 0
         affinity_entries = 0
@@ -86,6 +143,8 @@ class Model(object):
         self.logger.log(3, "Relationship between online agents 0 and 1 (degrees of separation): %r" %
                         (find_degrees_of_separation(self.online_agents[0], self.online_agents[1])))
 
+        # Randomly pick a couple pairs of agents and check to see how many degrees of separation there are between
+        # those two agents.
         num_users_to_average_separation = int(len(self.online_agents) / 200)
         deg_sep = 0
         unknowns = 0
@@ -113,6 +172,7 @@ class Model(object):
         self.logger.log(3, "------------")
         self.messages_sent = 0
         self.messages_received = 0
+
 
 def find_degrees_of_separation(agent1, agent2):
     """
@@ -147,6 +207,7 @@ def find_degrees_of_separation(agent1, agent2):
     # No relationship found
     return None
 
+
 def find_distance(agent1, agent2):
     """
     :param agent1: first agent
@@ -163,7 +224,13 @@ def find_distance(agent1, agent2):
     c = 2 * math.atan2(a ** .5, (1 - a) ** .5)
     return 3961 * c
 
+
 class ModelTests(unittest.TestCase):
+    """
+    Some basic test cases for module
+    """
+
+    
     def tests(self):
         m = Model()
         seattleperson = Person.Person(m, location=(-122, -48))
