@@ -10,7 +10,6 @@ and visualization modules.
 """
 
 import Logger as L
-import unittest
 import Person as P
 import Personality as Personality
 import math
@@ -283,23 +282,6 @@ def find_distance(agent1, agent2):
          math.cos(math.radians(agent2.location[1])) * (math.sin(dlon / 2)) ** 2
     c = 2 * math.atan2(a ** .5, (1 - a) ** .5)
     return 3961 * c
-
-
-class ModelTests(unittest.TestCase):
-    """
-    Some basic test cases for module
-    """
-
-
-    def tests(self):
-        m = Model(time_to_run=5, num_agents=200, visualizer = False)
-        #seattleperson = Person.Person(m, location=(-122, -48))
-        #newyorkperson = Person.Person(m, location=(-74, -40))
-        #jakartaperson = Person.Person(m, location=(107, 6))
-        #self.assertEquals(int(find_distance(seattleperson, newyorkperson)), 2409)
-        #self.assertEquals(int(find_distance(newyorkperson, jakartaperson)), 10092)
-        #self.assertEquals(int(find_distance(jakartaperson, seattleperson)), 8361)
-        m.run_simulation()
 
 if __name__ == "__main__":
 #tests = ModelTests()
