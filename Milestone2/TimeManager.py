@@ -1,3 +1,12 @@
+"""
+CSS 458 Spring Quarter 2016
+Social Nodes Project
+
+Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
+
+TimeManager
+"""
+
 class TimeManager(object):
     sharedManager = None
     

@@ -1,3 +1,12 @@
+"""
+CSS 458 Spring Quarter 2016
+Social Nodes Project
+
+Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
+
+Visualizer
+"""
+
 import networkx as nx
 import matplotlib.pyplot as plt
 import TimeManager as TM

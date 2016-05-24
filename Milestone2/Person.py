@@ -169,14 +169,16 @@ class Person(object):
         """
         for friend in self.friends:
             self.model.logger.log(0, "%r dispatching post %r to %r" % (self, post, friend))
-
             # if this is a repost, see if receiver will accept it
-            if post.sender != self and friend.accept_repost():
+            if post.sender == self:
+                friend.receive_post(post)
+            elif friend.accept_repost():
                 friend.receive_post(post)
 
         if post.sender.spam_to_world():
             num_to_spam = int(len(self.model.online_agents) * spam_to_world_proportion)
             for x in range (num_to_spam):
+                # does not exclude duplicates, exact quantity spammed is not important
                 self.model.online_agents[random.randint(0, len(self.model.online_agents) - 1)].receive_post(post)
 
     def decay_relationships(self):

@@ -11,7 +11,7 @@ import random
 import Post as Post
 import Model
 
-repost_probability_mutiplier = 1.5
+repost_probability_mutiplier = 1
 hemisphere_liking = 2
 hemisphere_disliking = -2
 close_liking_multiplier = 1.5
