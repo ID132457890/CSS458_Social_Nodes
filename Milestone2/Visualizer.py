@@ -111,11 +111,17 @@ class Visualizer(object):
             graph.add_node(node)
             
         for edge in edges:
-            agentList = list(edge.keys())[0][0]
-            likeList = list(edge.keys())[0][1]
-            graph.add_edge(list(edge.keys())[0][0], list(edge.keys())[0][1], weight=1.0)
+            print(edge[edge.keys()[0]])
+            weight = edge[edge.keys()[0]] / 54 * 6
             
-            widths.append(1.0)
+            if weight > 6.0:
+                weight = 6.0
+            elif weight < -6.0:
+                weight = 6.0
+            
+            graph.add_edge(edge.keys()[0][0], edge.keys()[0][1], weight=weight)
+            
+            widths.append(weight)
             
         self.updateGraph(graph, widths)
         
@@ -196,9 +202,16 @@ class Visualizer(object):
         positions = {}
         for node in nodes:
             positions[node] = (node.location[0], node.location[1])
+            
+        colors = []
+        for node in nodes:
+            if node.online:
+                colors.append("g")
+            else:
+                colors.append("r")
         
         if len(widths) != 0:
-            nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths)
+            nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors)
         
             self.mainGraphFig.show()
             
