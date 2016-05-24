@@ -1,16 +1,20 @@
-"""
-CSS 458 Spring Quarter 2016
-Social Nodes Project
-
-Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
-
-Visualizer
-"""
-
 import networkx as nx
 import matplotlib.pyplot as plt
 import TimeManager as TM
 import pylab as pl
+
+from enum import Enum
+
+class VType(Enum):
+    allGraphs = 0
+    mainNodesGraph = 1
+    postsSentGraph = 2
+    avgFriendsGraph = 3
+    avgEnemiesGraph = 4
+    avgLikenessGraph = 5
+    avgFriendsDistanceGraph = 6
+    avgEnemiesDistanceGraph = 7
+    onlinePeopleGraph = 8
 
 class VItem(object):
     item = None
@@ -58,39 +62,52 @@ class Visualizer(object):
     nodes = []
     edges = {}
     
+    acceptedTypes = []
+    
     @staticmethod
-    def createVisualizer():
-        Visualizer.sharedVisualizer = Visualizer()
+    def createVisualizer(types=[]):
+        Visualizer.sharedVisualizer = Visualizer(types=types)
         
-    def __init__(self):
-        self.postsSentFig = plt.figure()
-        self.postsSent = []
+    def __init__(self, types=[]):
+        
+        self.acceptedTypes = types
+        
+        if len(types) == 0 or VType.mainNodesGraph in types:
+            self.mainGraphFig = plt.figure()
+        
+        if len(types) == 0 or VType.postsSentGraph in types:
+            self.postsSentFig = plt.figure()
+            self.postsSent = []
         
         #self.postsSharedFig = plt.figure()
         #self.postsShared = []
         
-        self.avgFriendsFig = plt.figure()
-        self.avgFriends = []
+        if len(types) == 0 or VType.avgFriendsGraph in types:
+            self.avgFriendsFig = plt.figure()
+            self.avgFriends = []
         
-        self.avgIgnoredFig = plt.figure()
-        self.avgIgnored = []
+        if len(types) == 0 or VType.avgEnemiesGraph in types:
+            self.avgIgnoredFig = plt.figure()
+            self.avgIgnored = []
         
-        self.avgLikenessFig = plt.figure()
-        self.avgLikeness = []
+        if len(types) == 0 or VType.avgLikenessGraph in types:
+            self.avgLikenessFig = plt.figure()
+            self.avgLikeness = []
         
-        self.avgFriendsDistanceFig = plt.figure()
-        self.avgFriendsDistance = []
+        if len(types) == 0 or VType.avgFriendsDistanceGraph in types:
+            self.avgFriendsDistanceFig = plt.figure()
+            self.avgFriendsDistance = []
         
-        self.avgIgnoredDistanceFig = plt.figure()
-        self.avgIgnoredDistance = []
+        if len(types) == 0 or VType.avgEnemiesDistanceGraph in types:
+            self.avgIgnoredDistanceFig = plt.figure()
+            self.avgIgnoredDistance = []
         
         #self.avgMissedFig = plt.figure()
         #self.avgMissed = []
         
-        self.onlinePeopleFig = plt.figure()
-        self.onlinePeople = []
-        
-        self.mainGraphFig = plt.figure()
+        if len(types) == 0 or VType.onlinePeopleGraph in types:
+            self.onlinePeopleFig = plt.figure()
+            self.onlinePeople = []
     
     def addNode(self, node):
         item = VItem(node, TM.TimeManager.sharedManager.time)
@@ -104,31 +121,48 @@ class Visualizer(object):
         #self.updateMainGraph(node=node)
         
     def addNodesAndEdges(self, nodes, edges):
-        graph = nx.Graph()
-        widths = []
+        if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes):
+            graph = nx.Graph()
+            widths = []
+            colors = []
         
-        for node in nodes:
-            graph.add_node(node)
+            for node in nodes:
+                graph.add_node(node)
             
-        for edge in edges:
-            print(edge[edge.keys()[0]])
-            weight = edge[edge.keys()[0]] / 54 * 6
+            for edge in edges:
+                firstNode = edge.keys()[0][0]
+                secondNode = edge.keys()[0][1]
+                
+                if (not ((firstNode, secondNode) in graph.edges())) and \
+                    (not ((secondNode, firstNode) in graph.edges())):
+                
+                    weight = edge[edge.keys()[0]] / 54 * 6
+                
+                    if weight > 6.0:
+                        weight = 6.0
+                    elif weight < -6.0:
+                        weight = 6.0
+                    
+                    if weight >= 4:
+                        colors.append("g")
+                    elif weight >= 0:
+                        colors.append("#96ba07")
+                    elif weight >= -4:
+                        colors.append("#f59f0a")
+                    elif weight >= -6:
+                        colors.append("r")
+                
+                    graph.add_edge(firstNode, secondNode, weight=weight)
+                
+                    widths.append(weight)
             
-            if weight > 6.0:
-                weight = 6.0
-            elif weight < -6.0:
-                weight = 6.0
-            
-            graph.add_edge(edge.keys()[0][0], edge.keys()[0][1], weight=weight)
-            
-            widths.append(weight)
-            
-        self.updateGraph(graph, widths)
+            self.updateGraph(graph, widths, colors)
         
     def addPostsSent(self, postsSent):
-        self.postsSent.append(postsSent)
+        if len(self.acceptedTypes) == 0 or (VType.postsSentGraph in self.acceptedTypes):
+            self.postsSent.append(postsSent)
         
-        self.updatePostsSentTimeGraph()
+            self.updatePostsSentTimeGraph()
         
     def addPostsShared(self, postsShared):
         self.postsShared.append(postsShared)
@@ -136,29 +170,34 @@ class Visualizer(object):
         self.updatePostsSharedTimeGraph()
         
     def addAvgFriends(self, friends):
-        self.avgFriends.append(friends)
+        if len(self.acceptedTypes) == 0 or (VType.avgFriendsGraph in self.acceptedTypes):
+            self.avgFriends.append(friends)
         
-        self.updateAvgFriendsGraph()
+            self.updateAvgFriendsGraph()
         
     def addAvgIgnored(self, ignored):
-        self.avgIgnored.append(ignored)
+        if len(self.acceptedTypes) == 0 or (VType.avgEnemiesGraph in self.acceptedTypes):
+            self.avgIgnored.append(ignored)
         
-        self.updateAvgIgnoredGraph()
+            self.updateAvgIgnoredGraph()
         
     def addAvgLikeness(self, likeness):
-        self.avgLikeness.append(likeness)
+        if len(self.acceptedTypes) == 0 or (VType.avgLikenessGraph in self.acceptedTypes):
+            self.avgLikeness.append(likeness)
         
-        self.updateAvgLikenessGraph()
+            self.updateAvgLikenessGraph()
         
     def addAvgFriendsDistance(self, distance):
-        self.avgFriendsDistance.append(distance)
+        if len(self.acceptedTypes) == 0 or (VType.avgFriendsDistanceGraph in self.acceptedTypes):
+            self.avgFriendsDistance.append(distance)
         
-        self.updateAvgFriendsDistanceGraph()
+            self.updateAvgFriendsDistanceGraph()
         
     def addAvgIgnoredDistance(self, distance):
-        self.avgIgnoredDistance.append(distance)
+        if len(self.acceptedTypes) == 0 or (VType.avgEnemiesDistanceGraph in self.acceptedTypes):
+            self.avgIgnoredDistance.append(distance)
         
-        self.updateAvgIgnoredDistanceGraph()
+            self.updateAvgIgnoredDistanceGraph()
         
     def addAvgMissed(self, missed):
         self.avgMissed.append(missed)
@@ -166,9 +205,10 @@ class Visualizer(object):
         self.updateAvgMissedGraph()
         
     def addOnlinePeople(self, people):
-        self.onlinePeople.append(people)
+        if len(self.acceptedTypes) == 0 or (VType.inlinePeopleGraph in self.acceptedTypes):
+            self.onlinePeople.append(people)
         
-        self.updateOnlinePeopleGraph()
+            self.updateOnlinePeopleGraph()
         
     def connect(self, fromNode, toNode, weight):
         if (toNode, fromNode) in self.edges.keys():
@@ -193,7 +233,7 @@ class Visualizer(object):
             
             #self.updateMainGraph(edge={(fromNode, toNode): weight})
     
-    def updateGraph(self, graph, widths):
+    def updateGraph(self, graph, widths, edgeColors):
         plt.figure(self.mainGraphFig.number)
         self.mainGraphFig.clear()
         
@@ -211,11 +251,12 @@ class Visualizer(object):
                 colors.append("r")
         
         if len(widths) != 0:
-            nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors)
+            nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
+            edge_color=edgeColors)
         
             self.mainGraphFig.show()
             
-        plt.pause(0.1)
+        plt.pause(0.01)
             
     def updatePostsSentTimeGraph(self):
         plt.figure(self.postsSentFig.number)
@@ -226,7 +267,7 @@ class Visualizer(object):
         sub.set_title("Posts sent vs time")
         self.postsSentFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updatePostsSharedTimeGraph(self):
         plt.figure(self.postsSharedFig.number)
@@ -237,7 +278,7 @@ class Visualizer(object):
         sub.set_title("Posts shared vs time")
         self.postsSharedFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updateAvgFriendsGraph(self):
         plt.figure(self.avgFriendsFig.number)
@@ -248,7 +289,7 @@ class Visualizer(object):
         sub.set_title("Average # of friends vs time")
         self.avgFriendsFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updateAvgIgnoredGraph(self):
         plt.figure(self.avgIgnoredFig.number)
@@ -259,7 +300,7 @@ class Visualizer(object):
         sub.set_title("Average # of ignored vs time")
         self.avgIgnoredFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updateAvgLikenessGraph(self):
         plt.figure(self.avgLikenessFig.number)
@@ -270,7 +311,7 @@ class Visualizer(object):
         sub.set_title("Average likeness level vs time")
         self.avgLikenessFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updateAvgFriendsDistanceGraph(self):
         plt.figure(self.avgFriendsDistanceFig.number)
@@ -281,7 +322,7 @@ class Visualizer(object):
         sub.set_title("Average friend distance vs time")
         self.avgFriendsDistanceFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
     
     def updateAvgIgnoredDistanceGraph(self):
         plt.figure(self.avgIgnoredDistanceFig.number)
@@ -292,7 +333,7 @@ class Visualizer(object):
         sub.set_title("Average ignored distance vs time")
         self.avgIgnoredDistanceFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updateAvgMissedGraph(self):
         plt.figure(self.avgMissedFig.number)
@@ -303,7 +344,7 @@ class Visualizer(object):
         sub.set_title("Average missed opportunities vs time")
         self.avgMissedFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
         
     def updateOnlinePeopleGraph(self):
         plt.figure(self.onlinePeopleFig.number)
@@ -314,7 +355,7 @@ class Visualizer(object):
         sub.set_title("People becoming online vs time")
         self.onlinePeopleFig.show()
         
-        plt.pause(0.1)
+        plt.pause(0.01)
     
     def updateMainGraph(self, node=None, edge=None):
         if node != None:
