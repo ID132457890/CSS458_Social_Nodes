@@ -225,8 +225,8 @@ class Model(object):
         
         V.Visualizer.sharedVisualizer.addNodesAndEdges(self.agents, edges)  
         V.Visualizer.sharedVisualizer.addPostsSent(self.messages_sent)
-        V.Visualizer.sharedVisualizer.addAvgFriends(total_friends / len(self.agents))
-        V.Visualizer.sharedVisualizer.addAvgIgnored(total_enemies / len(self.agents))
+        V.Visualizer.sharedVisualizer.addAvgFriends(float(total_friends) / len(self.agents))
+        V.Visualizer.sharedVisualizer.addAvgIgnored(float(total_enemies) / len(self.agents))
         V.Visualizer.sharedVisualizer.addAvgLikeness(likeness / len(self.agents))
         V.Visualizer.sharedVisualizer.addAvgFriendsDistance(friendDistance / len(self.agents))
         V.Visualizer.sharedVisualizer.addAvgIgnoredDistance(enemyDistance / len(self.agents))
