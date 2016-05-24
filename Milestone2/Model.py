@@ -26,7 +26,8 @@ class Model(object):
     """
 
     def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 15, enemies_affinity = -15,
-                 time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05):
+                 time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05,
+                 visualizer = False):
         """
         :param num_agents: Maximum number of agents for the simulation
         :param topics: Number of topics of interest
@@ -59,26 +60,28 @@ class Model(object):
         # Create agents for simulation
         self.spawn_agents(num_agents)
 
+        self.visualizer = visualizer
+        if visualizer == True:
+            V.Visualizer.createVisualizer()
+
     def run_simulation(self):
         """
         Loops through each agent fo rthe specified number of rounds.
         :return: Nothing
         """
+
         TM.TimeManager.createManager()
-        V.Visualizer.createVisualizer()
-        
         for x in range (self.time_to_run):
             for agent in self.agents:
                 agent.take_turn()
                 while self.agents_to_settle:
                     agent = self.agents_to_settle.pop()
                     agent.settle_reposts()
+            if self.visualizer == True:
+                self.generate_visualizations(x)
+                TM.TimeManager.sharedManager.increaseTime()
             self.generate_statistics(x)
-            TM.TimeManager.sharedManager.increaseTime()
-            #self.analytics.round_analyze()
 
-        # Report any interesting statistiscs, etc
-        # self.analytics.finish_analyze()
 
     def request_post_attention(self, agent):
         """
@@ -176,9 +179,19 @@ class Model(object):
                         (self.messages_sent, self.messages_received))
 
         self.logger.log(3, "------------")
-        
-        
-        
+        self.messages_sent = 0
+        self.messages_received = 0
+
+    def generate_visualizations(self, x):
+        total_friends = 0
+        total_enemies = 0
+        affinity_entries = 0
+
+        for agent in self.online_agents:
+            total_friends += len(agent.friends)
+            total_enemies += len(agent.enemies)
+            affinity_entries += len(agent.affinity_map)
+
         likeness = 0.0
         
         for agent in self.agents:
@@ -219,10 +232,6 @@ class Model(object):
         V.Visualizer.sharedVisualizer.addAvgFriendsDistance(friendDistance / len(self.agents))
         V.Visualizer.sharedVisualizer.addAvgIgnoredDistance(enemyDistance / len(self.agents))
         V.Visualizer.sharedVisualizer.addOnlinePeople(len(self.online_agents))
-        
-        
-        self.messages_sent = 0
-        self.messages_received = 0
 
 
 def find_degrees_of_separation(agent1, agent2):
@@ -283,7 +292,7 @@ class ModelTests(unittest.TestCase):
 
 
     def tests(self):
-        m = Model()
+        m = Model(time_to_run=5, num_agents=200, visualizer = True)
         #seattleperson = Person.Person(m, location=(-122, -48))
         #newyorkperson = Person.Person(m, location=(-74, -40))
         #jakartaperson = Person.Person(m, location=(107, 6))
@@ -295,5 +304,5 @@ class ModelTests(unittest.TestCase):
 if __name__ == "__main__":
 #tests = ModelTests()
 #tests.tests()
-    m = Model(time_to_run=5, num_agents=500)
+    m = Model(time_to_run=5, num_agents=500, visualizer = True)
     m.run_simulation()

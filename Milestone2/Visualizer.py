@@ -102,8 +102,9 @@ class Visualizer(object):
             graph.add_node(node)
             
         for edge in edges:
-            #edge[edge.keys()[0]]
-            graph.add_edge(edge.keys()[0][0], edge.keys()[0][1], weight=1.0)
+            agentList = list(edge.keys())[0][0]
+            likeList = list(edge.keys())[0][1]
+            graph.add_edge(list(edge.keys())[0][0], list(edge.keys())[0][1], weight=1.0)
             
             widths.append(1.0)
             
