@@ -9,11 +9,75 @@ batch testing
 """
 
 class DataExporter(object):
-    def exporter_init(self, model):
-        pass
+    def __init__(self, model, send_results = None):
+        self.model = model
+        self.data_map = {}
+        self.round_totals = []
+        self.last_seen_post_count = 0
+        self.last_seen_recv_count = 0
+        self.send_results = send_results
 
-    def exporter_turn(self, model, previous_person, next_person):
-        pass
+    def collector_turn(self, round, previous_person):
+        if not previous_person in self.data_map:
+            facet_list = []
+            next_facet = previous_person.personality.facets
+            while (next_facet != None):
+                facet_list.append(next_facet)
+                next_facet = next_facet.next_facet
 
-    def exporter_round(self, model):
-        pass
+            self.data_map[previous_person] = {
+                'personality': previous_person.personality,
+                'facets': facet_list,
+                'location': previous_person.location,
+                'online': round,
+                'interests': previous_person.personality.interests,
+                'post_prob': previous_person.personality.post_probability,
+                'repost_prob': previous_person.personality.repost_probability,
+                'prob_read_repost': previous_person.personality.probability_read_reposts,
+                'fame': previous_person.personality.fame,
+                'rounds': []
+            }
+
+        round = {
+            'sent': (self.last_seen_post_count == self.model.messages_sent),
+            'reposts': self.model.messages_received - self.last_seen_recv_count,
+            'friends': previous_person.friends,
+            'enemies': previous_person.enemies,
+            'friends_count': len(previous_person.friends),
+            'enemies_count': len(previous_person.enemies),
+            'affinity_map': previous_person.affinity_map
+        }
+
+        self.data_map[previous_person]['rounds'].append(round)
+        self.last_seen_post_count = self.model.messages_sent
+        self.last_seen_recv_count = self.model.messages_received
+
+    def collector_round(self, round):
+        num_friends = 0
+        num_enemies = 0
+        num_knowledge_connections = 0
+        for agent in self.model.online_agents:
+            num_friends += len(agent.friends)
+            num_enemies += len(agent.enemies)
+            num_knowledge_connections += len(agent.affinity_map)
+
+
+        round_total = {
+            'num_messages_sent': self.last_seen_post_count,
+            'num_messages_received': self.last_seen_recv_count,
+            'num_online_agents': len(self.model.online_agents),
+            'num_total_friend': num_friends,
+            'num_total_enemies': num_enemies,
+            'num_knowledge': num_knowledge_connections
+        }
+
+        self.round_totals.append(round_total)
+
+        self.last_seen_post_count = 0
+        self.last_seen_recv_count = 0
+
+    def finalize(self):
+        #print (self.data_map)
+        #print (self.round_totals)
+        if self.send_results != None:
+            self.send_results(self.model, self.round_totals, self.data_map)

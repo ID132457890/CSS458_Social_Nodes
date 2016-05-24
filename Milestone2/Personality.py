@@ -98,7 +98,7 @@ class Personality(object):
         self.interests = generator(model)
         self.facets = facet_generator(self, model)
         self.model = model
-        self.post_probabilty = random.random()
+        self.post_probability = random.random()
         self.repost_probability = random.random() * repost_probability_mutiplier
         self.probability_read_reposts = random.random()
         self.fame = random.random() * 100
@@ -137,7 +137,7 @@ class Personality(object):
         Generates a post with a random subset of the person's interests
         :return: message to post
         """
-        if random.random() < self.post_probabilty:
+        if random.random() < self.post_probability:
             keys = list(self.interests.keys())
             post_topic = []
             # randomly 1 to 4 topics

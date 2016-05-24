@@ -18,6 +18,7 @@ import random
 import TimeManager as TM
 import Visualizer as V
 
+import DataExporter
 
 class Model(object):
     """
@@ -26,7 +27,7 @@ class Model(object):
 
     def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 15, enemies_affinity = -15,
                  time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05,
-                 visualizer = False):
+                 visualizer = False, data_collector = None, data_collector_results = None, log_level = 3):
         """
         :param num_agents: Maximum number of agents for the simulation
         :param topics: Number of topics of interest
@@ -40,7 +41,7 @@ class Model(object):
         """
 
         # Instance variables for simulation's configuration
-        self.logger = L.Logger(self, options = {'threshold': 3})
+        self.logger = L.Logger(self, options = {'threshold': log_level})
         self.agents = []
         self.online_agents = []
         self.num_agents = num_agents
@@ -55,6 +56,8 @@ class Model(object):
         # Counters for statistics
         self.messages_sent = 0
         self.messages_received = 0
+        self.total_messages_sent = 0
+        self.total_messages_received = 0
 
         # Create agents for simulation
         self.spawn_agents(num_agents)
@@ -62,6 +65,11 @@ class Model(object):
         self.visualizer = visualizer
         if visualizer == True:
             V.Visualizer.createVisualizer()
+
+        if data_collector == None:
+            self.data_collector = data_collector
+        else:
+            self.data_collector = data_collector(self, data_collector_results)
 
     def run_simulation(self):
         """
@@ -76,11 +84,17 @@ class Model(object):
                 while self.agents_to_settle:
                     agent = self.agents_to_settle.pop()
                     agent.settle_reposts()
+                if self.data_collector != None:
+                    self.data_collector.collector_turn(x, agent)
             if self.visualizer == True:
                 self.generate_visualizations(x)
                 TM.TimeManager.sharedManager.increaseTime()
+            if self.data_collector != None:
+                self.data_collector.collector_round(x)
             self.generate_statistics(x)
 
+        if self.data_collector != None:
+            self.data_collector.finalize()
 
     def request_post_attention(self, agent):
         """
@@ -178,6 +192,8 @@ class Model(object):
                         (self.messages_sent, self.messages_received))
 
         self.logger.log(3, "------------")
+        self.total_messages_received += self.messages_received
+        self.total_messages_sent += self.messages_sent
         self.messages_sent = 0
         self.messages_received = 0
 
@@ -284,7 +300,5 @@ def find_distance(agent1, agent2):
     return 3961 * c
 
 if __name__ == "__main__":
-#tests = ModelTests()
-#tests.tests()
-    m = Model(time_to_run=5, num_agents=500, visualizer = True)
+    m = Model(time_to_run=5, num_agents=500, visualizer = False, data_collector = DataExporter.DataExporter)
     m.run_simulation()
