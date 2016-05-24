@@ -292,7 +292,7 @@ class ModelTests(unittest.TestCase):
 
 
     def tests(self):
-        m = Model(time_to_run=5, num_agents=200, visualizer = True)
+        m = Model(time_to_run=5, num_agents=200, visualizer = False)
         #seattleperson = Person.Person(m, location=(-122, -48))
         #newyorkperson = Person.Person(m, location=(-74, -40))
         #jakartaperson = Person.Person(m, location=(107, 6))

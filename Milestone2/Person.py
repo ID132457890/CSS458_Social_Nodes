@@ -46,7 +46,7 @@ class Person(object):
         else:
             self.location = location
 
-        self.inbox = set()
+        self.inbox = None
 
     def take_turn(self):
         """
@@ -78,7 +78,7 @@ class Person(object):
         """
         if self.online == True and message not in self.posts_seen:
             self.model.messages_received += 1
-            self.inbox.add(message)
+            self.inbox = message
             self.model.request_post_attention(self)
 
     def accept_repost(self):
@@ -95,10 +95,9 @@ class Person(object):
 
         :return: nothing
         """
-        self.posts_seen.update(self.inbox)
-        for message in self.inbox:
-            self.process_post(message)
-        self.inbox.clear()
+        self.posts_seen.add(self.inbox)
+        self.process_post(self.inbox)
+        self.inbox = None
 
     def create_post(self):
         """
