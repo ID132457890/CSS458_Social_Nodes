@@ -79,7 +79,7 @@ class Model(object):
         self.spawn_agents(self.num_agents)
 
         if self.visualizer == True:
-            V.Visualizer.createVisualizer()
+            V.Visualizer.createVisualizer(showAtEnd=True)
 
         TM.TimeManager.createManager()
         for x in range (self.time_to_run):
@@ -96,6 +96,8 @@ class Model(object):
             if self.data_collector != None:
                 self.data_collector.collector_round(x)
             self.generate_statistics(x)
+
+        V.Visualizer.sharedVisualizer.updateEverything()
 
         if self.data_collector != None:
             self.data_collector.finalize()
