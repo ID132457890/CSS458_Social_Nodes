@@ -304,5 +304,5 @@ def find_distance(agent1, agent2):
     return 3961 * c
 
 if __name__ == "__main__":
-    m = Model(time_to_run=5, num_agents=100, visualizer = True)
+    m = Model(time_to_run=5, num_agents=10, visualizer = True)
     m.run_simulation()

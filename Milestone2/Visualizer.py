@@ -145,7 +145,7 @@ class Visualizer(object):
                 if (not ((firstNode, secondNode) in graph.edges())) and \
                     (not ((secondNode, firstNode) in graph.edges())):
                 
-                    weight = edge[edge.keys()[0]] / 54 * 6
+                    weight = edge[list(edge.keys())[0]] / 54 * 6
                 
                     if weight > 6.0:
                         weight = 6.0
@@ -410,7 +410,7 @@ class Visualizer(object):
             nx.draw_networkx_nodes(self.mainGraph, {node: node.position.toTouple()}, nodelist=[node])
         
         elif edge != None:
-            firstKey = edge.keys()[0]
+            firstKey = list(edge.keys())[0]
             
             node1 = firstKey[0]
             node2 = firstKey[1]

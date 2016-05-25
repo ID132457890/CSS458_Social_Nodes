@@ -74,11 +74,13 @@ class AnalysisAggregator(object):
 
             return processor(self, repeat)
 
+
+#----------
+# demonstration of using data export/aggregation
 result_list = []
 
 a = AnalysisAggregator()
-#----------------
-# Tests as agent count increases
+
 
 result_list.append(("20% fame",
                     a.simple_exec(modifications=(("Personality.percent_probability_famous", 20),),
