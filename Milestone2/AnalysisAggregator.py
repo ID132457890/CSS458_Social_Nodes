@@ -1,3 +1,12 @@
+"""
+CSS 458 Spring Quarter 2016
+Social Nodes Project
+
+Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
+
+Module to allow batch processing of simulations
+"""
+
 import Model
 import DataExporter
 import numpy as np
@@ -15,7 +24,35 @@ class AnalysisAggregator(object):
     def collector(self, model, round_totals, data_map):
         self.results.append(round_totals)
 
-    def simple_exec(self, reset = True, repeat = 3, modifications = None, **kwargs):
+    #---------------------------------------------------
+    # These methods are different ways that session data can be returned.
+    # New methods for different types of processing may be added as needed
+    def return_overall_averages(self, repeat):
+        result_array = np.zeros((repeat,5))
+        for x in range(len(self.results)):
+            test = self.results[x]
+            for round in test:
+                result_array[x, 0] += round['num_messages_sent'] / round['num_online_agents']
+                result_array[x, 1] += round['num_messages_received'] / round['num_online_agents']
+                result_array[x, 2] += round['num_total_friend'] / round['num_online_agents']
+                result_array[x, 3] += round['num_total_enemies'] / round['num_online_agents']
+                result_array[x, 4] += round['num_knowledge'] / round['num_online_agents']
+
+            result_array[x] = result_array[x] / len(test)
+
+        return (np.average(result_array[:, 0]), np.std(result_array[:, 0]),
+                np.average(result_array[:, 1]), np.std(result_array[:, 1]),
+                np.average(result_array[:, 2]), np.std(result_array[:, 2]),
+                np.average(result_array[:, 3]), np.std(result_array[:, 3]),
+                np.average(result_array[:, 4]), np.std(result_array[:, 4]))
+
+    def return_raw_data(self, repeat):
+        return self.results
+    # End of data processing/session data returning methods
+    # ---------------------------------------------------
+
+    def simple_exec(self, reset = True, repeat = 3, modifications = None,
+                    processor = return_overall_averages, **kwargs):
         if reset == True:
             self.reset()
 
@@ -35,23 +72,7 @@ class AnalysisAggregator(object):
             for item in restore:
                 exec("%s=%s" % (item[0], item[1]))
 
-        result_array = np.zeros((repeat,5))
-        for x in range(len(self.results)):
-            test = self.results[x]
-            for round in test:
-                result_array[x, 0] += round['num_messages_sent'] / round['num_online_agents']
-                result_array[x, 1] += round['num_messages_received'] / round['num_online_agents']
-                result_array[x, 2] += round['num_total_friend'] / round['num_online_agents']
-                result_array[x, 3] += round['num_total_enemies'] / round['num_online_agents']
-                result_array[x, 4] += round['num_knowledge'] / round['num_online_agents']
-
-            result_array[x] = result_array[x] / len(test)
-
-        return (np.average(result_array[:, 0]), np.std(result_array[:, 0]),
-                np.average(result_array[:, 1]), np.std(result_array[:, 1]),
-                np.average(result_array[:, 2]), np.std(result_array[:, 2]),
-                np.average(result_array[:, 3]), np.std(result_array[:, 3]),
-                np.average(result_array[:, 4]), np.std(result_array[:, 4]))
+            return processor(self, repeat)
 
 result_list = []
 
