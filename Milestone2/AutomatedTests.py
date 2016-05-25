@@ -18,10 +18,12 @@ import unittest
 class TestModel(unittest.TestCase):
     def setUp(self):
         self.m = Model.Model()
+        self.m.spawn_agents(self.m.num_agents)
         self.m.logger._loggers[0].threshold = 10
 
     def test_model_instantiation(self):
         m = Model.Model(num_agents = 5000, topics = 30)
+        m.spawn_agents(m.num_agents)
         self.assertNotEquals(m, None, "Model instantiation not working.")
         self.assertEquals(len(m.agents), 5000, "Model creating improper number of agents.")
 
@@ -66,9 +68,13 @@ class TestModel(unittest.TestCase):
         self.assertEqual(Model.find_degrees_of_separation(self.m.agents[0], self.m.agents[29]), 28,
                                                           "Degrees of separation should be 28, but is not")
 
+        self.assertEqual(Model.find_degrees_of_separation(self.m.agents[13], self.m.agents[13]), None,
+                                                          "Should return None for check against self, but doesn't")
+
 class TestPersonalityAndPersonBehavior(unittest.TestCase):
     def setUp(self):
         self.m = Model.Model()
+        self.m.spawn_agents(self.m.num_agents)
         self.m.logger._loggers[0].threshold = 10
         self.person1 = self.m.agents[0]
         self.person1.online = True

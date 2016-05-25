@@ -268,6 +268,9 @@ def find_degrees_of_separation(agent1, agent2):
     """
 
     # Perform breadth-first search to see if we can find agent2 starting from agent1
+    if agent1 == agent2:
+        return None
+
     if not agent1.friends:
         return None
 
