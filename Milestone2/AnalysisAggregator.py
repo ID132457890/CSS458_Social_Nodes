@@ -8,52 +8,110 @@ class AnalysisAggregator(object):
     def __init__(self):
         self.results = []
 
+    def reset(self):
+        self.results = []
+
     def collector(self, model, round_totals, data_map):
         self.results.append(round_totals)
 
-    def simple_exec(self, **kwargs):
-        for x in range(10):
+    def simple_exec(self, reset = True, repeat = 3, **kwargs):
+        if reset == True:
+            self.reset()
+
+        for x in range(repeat):
             m = Model.Model(**kwargs)
             m.run_simulation()
 
-        total_posts = 0
-        total_recv = 0
-        total_friends = 0
-        total_enemies = 0
-        total_knowledge = 0
-
-        result_array = np.zeros((10,5))
+        result_array = np.zeros((repeat,5))
         for x in range(len(self.results)):
             test = self.results[x]
             for round in test:
-                result_array[x, 0] += round['num_messages_sent']
-                result_array[x, 1] += round['num_messages_received']
-                result_array[x, 2] += round['num_total_friend']
-                result_array[x, 3] += round['num_total_enemies']
-                result_array[x, 4] += round['num_knowledge']
+                result_array[x, 0] += round['num_messages_sent'] / round['num_online_agents']
+                result_array[x, 1] += round['num_messages_received'] / round['num_online_agents']
+                result_array[x, 2] += round['num_total_friend'] / round['num_online_agents']
+                result_array[x, 3] += round['num_total_enemies'] / round['num_online_agents']
+                result_array[x, 4] += round['num_knowledge'] / round['num_online_agents']
 
-        print ("avg sent %r \t\t std dev %r" % (np.average(result_array[:,0]), np.std(result_array[:,0])))
-        print("avg rcv %r \t\t std dev %r" % (np.average(result_array[:, 1]), np.std(result_array[:, 1])))
-        print("avg friends %r \t\t std dev %r" % (np.average(result_array[:, 2]), np.std(result_array[:, 2])))
-        print("avg enemies %r \t\t std dev %r" % (np.average(result_array[:, 3]), np.std(result_array[:, 3])))
-        print("avg known %r \t\t std dev %r" % (np.average(result_array[:, 4]), np.std(result_array[:, 4])))
+            result_array[x] = result_array[x] / len(test)
 
-a = AnalysisAggregator()
-print ("Averages with 50 agents, 10 topics:")
-a.simple_exec(num_agents = 50, topics = 10, data_collector = DataExporter.DataExporter,
-              time_to_run = 20, data_collector_results = a.collector, log_level = 10)
+        return (np.average(result_array[:, 0]), np.std(result_array[:, 0]),
+                np.average(result_array[:, 1]), np.std(result_array[:, 1]),
+                np.average(result_array[:, 2]), np.std(result_array[:, 2]),
+                np.average(result_array[:, 3]), np.std(result_array[:, 3]),
+                np.average(result_array[:, 4]), np.std(result_array[:, 4]))
 
-a = AnalysisAggregator()
-print ("Averages with 200 agents, 10 topics:")
-a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-              time_to_run=20, data_collector_results=a.collector, log_level=10)
+result_list = []
 
 a = AnalysisAggregator()
-print ("Averages with 50 agents, 50 topics:")
-a.simple_exec(num_agents=50, topics=50, data_collector=DataExporter.DataExporter,
-              time_to_run=20, data_collector_results=a.collector, log_level=10)
+#----------------
+# Tests as agent count increases
+result_list.append((" 50A 10T",
+                    a.simple_exec(num_agents=50, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("100A 10T",
+                    a.simple_exec(num_agents=100, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("200A 10T",
+                    a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+"""
+result_list.append(("300A 10T",
+                    a.simple_exec(num_agents=300, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("400A 10T",
+                    a.simple_exec(num_agents=400, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("500A 10T",
+                    a.simple_exec(num_agents=500, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+"""
+#----------------
+# Tests as topic count increases
+result_list.append(("200A 10T",
+                    a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("200A 20T",
+                    a.simple_exec(num_agents=200, topics=20, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("200A 40T",
+                    a.simple_exec(num_agents=200, topics=40, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+"""
+result_list.append(("200A 80T",
+                    a.simple_exec(num_agents=200, topics=80, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("200A 160T",
+                    a.simple_exec(num_agents=200, topics=160, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("200A 320T",
+                    a.simple_exec(num_agents=200, topics=320, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+"""
+#----------------
+# Tests as round count increases
+result_list.append(("10 Turn  ",
+                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
+                                  time_to_run=10, data_collector_results=a.collector, log_level=10)))
+result_list.append(("20 Turn  ",
+                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
+                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
+result_list.append(("40 Turn  ",
+                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
+                                  time_to_run=40, data_collector_results=a.collector, log_level=10)))
+"""
+result_list.append(("80 Turn  ",
+                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
+                                  time_to_run=80, data_collector_results=a.collector, log_level=10)))
+result_list.append(("160 Turn ",
+                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
+                                  time_to_run=160, data_collector_results=a.collector, log_level=10)))
+result_list.append(("320 Turn ",
+                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
+                                  time_to_run=320, data_collector_results=a.collector, log_level=10)))
+"""
 
-a = AnalysisAggregator()
-print ("Averages with 200 agents, 50 topics:")
-a.simple_exec(num_agents=200, topics=50, data_collector=DataExporter.DataExporter,
-              time_to_run=20, data_collector_results=a.collector, log_level=10)
+print("Test           Sent      Dev       Resent      Dev         Friend      Dev         Enemy       Dev         Known       Dev")
+for result in result_list:
+    print("%s %10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t" %
+          (result[0], result[1][0],result[1][1],result[1][2],result[1][3],result[1][4],result[1][5]
+           , result[1][6],result[1][7],result[1][8],result[1][9]))
