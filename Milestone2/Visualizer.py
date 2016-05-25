@@ -63,14 +63,20 @@ class Visualizer(object):
     edges = {}
     
     acceptedTypes = []
+    lastNodesGraph = []
+    
+    showAtEnd = False
     
     @staticmethod
-    def createVisualizer(types=[]):
-        Visualizer.sharedVisualizer = Visualizer(types=types)
+    def createVisualizer(types=[], showAtEnd=False):
+        Visualizer.sharedVisualizer = Visualizer(types=types, showAtEnd=showAtEnd)
         
-    def __init__(self, types=[]):
+    def __init__(self, types=[], showAtEnd=False):
         
         self.acceptedTypes = types
+        self.lastNodesGraph = []
+        
+        self.showAtEnd = showAtEnd
         
         if len(types) == 0 or VType.mainNodesGraph in types:
             self.mainGraphFig = plt.figure()
@@ -125,6 +131,9 @@ class Visualizer(object):
             graph = nx.Graph()
             widths = []
             colors = []
+            
+            #del self.lastNodesGraph[:]
+            self.lastNodesGraph = []
         
             for node in nodes:
                 graph.add_node(node)
@@ -136,7 +145,7 @@ class Visualizer(object):
                 if (not ((firstNode, secondNode) in graph.edges())) and \
                     (not ((secondNode, firstNode) in graph.edges())):
                 
-                    weight = edge[list(edge.keys())[0]] / 54 * 6
+                    weight = edge[edge.keys()[0]] / 54 * 6
                 
                     if weight > 6.0:
                         weight = 6.0
@@ -156,13 +165,23 @@ class Visualizer(object):
                 
                     widths.append(weight)
             
-            self.updateGraph(graph, widths, colors)
+            self.lastNodesGraph.append(graph)
+            self.lastNodesGraph.append(widths)
+            self.lastNodesGraph.append(colors)
+            
+            if not self.showAtEnd:
+                self.updateGraph(graph, widths, colors)
+            
+            #self.pause()
         
     def addPostsSent(self, postsSent):
         if len(self.acceptedTypes) == 0 or (VType.postsSentGraph in self.acceptedTypes):
             self.postsSent.append(postsSent)
-        
-            self.updatePostsSentTimeGraph()
+            
+            if not self.showAtEnd:
+                self.updatePostsSentTimeGraph()
+            
+            #self.pause()
         
     def addPostsShared(self, postsShared):
         self.postsShared.append(postsShared)
@@ -172,32 +191,47 @@ class Visualizer(object):
     def addAvgFriends(self, friends):
         if len(self.acceptedTypes) == 0 or (VType.avgFriendsGraph in self.acceptedTypes):
             self.avgFriends.append(friends)
-        
-            self.updateAvgFriendsGraph()
+            
+            if not self.showAtEnd:
+                self.updateAvgFriendsGraph()
+            
+            #self.pause()
         
     def addAvgIgnored(self, ignored):
         if len(self.acceptedTypes) == 0 or (VType.avgEnemiesGraph in self.acceptedTypes):
             self.avgIgnored.append(ignored)
         
-            self.updateAvgIgnoredGraph()
+            if not self.showAtEnd:
+                self.updateAvgIgnoredGraph()
+            
+            #self.pause()
         
     def addAvgLikeness(self, likeness):
         if len(self.acceptedTypes) == 0 or (VType.avgLikenessGraph in self.acceptedTypes):
             self.avgLikeness.append(likeness)
-        
-            self.updateAvgLikenessGraph()
+            
+            if not self.showAtEnd:
+                self.updateAvgLikenessGraph()
+            
+            #self.pause()
         
     def addAvgFriendsDistance(self, distance):
         if len(self.acceptedTypes) == 0 or (VType.avgFriendsDistanceGraph in self.acceptedTypes):
             self.avgFriendsDistance.append(distance)
-        
-            self.updateAvgFriendsDistanceGraph()
+            
+            if not self.showAtEnd:
+                self.updateAvgFriendsDistanceGraph()
+            
+            #self.pause()
         
     def addAvgIgnoredDistance(self, distance):
         if len(self.acceptedTypes) == 0 or (VType.avgEnemiesDistanceGraph in self.acceptedTypes):
             self.avgIgnoredDistance.append(distance)
-        
-            self.updateAvgIgnoredDistanceGraph()
+            
+            if not self.showAtEnd:
+                self.updateAvgIgnoredDistanceGraph()
+            
+            #self.pause()
         
     def addAvgMissed(self, missed):
         self.avgMissed.append(missed)
@@ -208,7 +242,10 @@ class Visualizer(object):
         if len(self.acceptedTypes) == 0 or (VType.inlinePeopleGraph in self.acceptedTypes):
             self.onlinePeople.append(people)
         
-            self.updateOnlinePeopleGraph()
+            if not self.showAtEnd:
+                self.updateOnlinePeopleGraph()
+            
+            #self.pause()
         
     def connect(self, fromNode, toNode, weight):
         if (toNode, fromNode) in self.edges.keys():
@@ -250,11 +287,11 @@ class Visualizer(object):
             else:
                 colors.append("r")
         
-        if len(widths) != 0:
-            nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
-            edge_color=edgeColors)
+        #if len(widths) != 0:
+        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
+        edge_color=edgeColors)
         
-            self.mainGraphFig.show()
+        self.mainGraphFig.show()
             
         plt.pause(0.01)
             
@@ -356,6 +393,17 @@ class Visualizer(object):
         self.onlinePeopleFig.show()
         
         plt.pause(0.01)
+        
+    def updateEverything(self):
+        if self.showAtEnd:
+            self.updateGraph(self.lastNodesGraph[0], self.lastNodesGraph[1], self.lastNodesGraph[2])
+            self.updatePostsSentTimeGraph()
+            self.updateAvgFriendsGraph()
+            self.updateAvgIgnoredGraph()
+            self.updateAvgLikenessGraph()
+            self.updateAvgFriendsDistanceGraph()
+            self.updateAvgIgnoredDistanceGraph()
+            self.updateOnlinePeopleGraph()
     
     def updateMainGraph(self, node=None, edge=None):
         if node != None:
@@ -374,5 +422,5 @@ class Visualizer(object):
                                                     
         plt.show()
         
-    def pause(self):
-        plt.pause(0.5)
+    def pause(self, time=0.5):
+        plt.pause(time)
