@@ -61,12 +61,7 @@ class Model(object):
         self.total_messages_sent = 0
         self.total_messages_received = 0
 
-        # Create agents for simulation
-        self.spawn_agents(num_agents)
-
         self.visualizer = visualizer
-        if visualizer == True:
-            V.Visualizer.createVisualizer()
 
         if data_collector == None:
             self.data_collector = data_collector
@@ -79,6 +74,12 @@ class Model(object):
         Loops through each agent fo rthe specified number of rounds.
         :return: Nothing
         """
+
+        # Create agents for simulation
+        self.spawn_agents(self.num_agents)
+
+        if self.visualizer == True:
+            V.Visualizer.createVisualizer()
 
         TM.TimeManager.createManager()
         for x in range (self.time_to_run):
@@ -303,5 +304,5 @@ def find_distance(agent1, agent2):
     return 3961 * c
 
 if __name__ == "__main__":
-    m = Model(time_to_run=5, num_agents=500, visualizer = False, data_collector = DataExporter.DataExporter)
+    m = Model(time_to_run=5, num_agents=100, visualizer = True)
     m.run_simulation()

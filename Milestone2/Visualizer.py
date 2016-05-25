@@ -130,13 +130,13 @@ class Visualizer(object):
                 graph.add_node(node)
             
             for edge in edges:
-                firstNode = edge.keys()[0][0]
-                secondNode = edge.keys()[0][1]
+                firstNode = list(edge.keys())[0][0]
+                secondNode = list(edge.keys())[0][1]
                 
                 if (not ((firstNode, secondNode) in graph.edges())) and \
                     (not ((secondNode, firstNode) in graph.edges())):
                 
-                    weight = edge[edge.keys()[0]] / 54 * 6
+                    weight = edge[list(edge.keys())[0]] / 54 * 6
                 
                     if weight > 6.0:
                         weight = 6.0
