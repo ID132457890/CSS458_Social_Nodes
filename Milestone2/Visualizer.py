@@ -15,6 +15,7 @@ class VType(Enum):
     avgFriendsDistanceGraph = 6
     avgEnemiesDistanceGraph = 7
     onlinePeopleGraph = 8
+    avgShortestPathGraph = 9
 
 class VItem(object):
     item = None
@@ -58,6 +59,9 @@ class Visualizer(object):
     onlinePeopleFig = None
     onlinePeople = []
     
+    avgShortestPathFig = None
+    avgShortestPath = []
+    
     graphs = []
     nodes = []
     edges = {}
@@ -73,7 +77,7 @@ class Visualizer(object):
         
     def __init__(self, types=[], showAtEnd=False):
         
-        self.acceptedTypes = types
+        self.acceptedTypes = types[:]
         self.lastNodesGraph = []
         
         self.showAtEnd = showAtEnd
@@ -114,6 +118,10 @@ class Visualizer(object):
         if len(types) == 0 or VType.onlinePeopleGraph in types:
             self.onlinePeopleFig = plt.figure()
             self.onlinePeople = []
+
+        if len(types) == 0 or VType.avgShortestPathGraph in types:    
+            self.avgShortestPathFig = plt.figure()
+            self.avgShortestPath = []
     
     def addNode(self, node):
         item = VItem(node, TM.TimeManager.sharedManager.time)
@@ -145,7 +153,7 @@ class Visualizer(object):
                 if (not ((firstNode, secondNode) in graph.edges())) and \
                     (not ((secondNode, firstNode) in graph.edges())):
                 
-                    weight = edge[list(edge.keys())[0]] / 54 * 6
+                    weight = edge[edge.keys()[0]] / 54 * 6
                 
                     if weight > 6.0:
                         weight = 6.0
@@ -239,13 +247,20 @@ class Visualizer(object):
         self.updateAvgMissedGraph()
         
     def addOnlinePeople(self, people):
-        if len(self.acceptedTypes) == 0 or (VType.inlinePeopleGraph in self.acceptedTypes):
+        if len(self.acceptedTypes) == 0 or (VType.onlinePeopleGraph in self.acceptedTypes):
             self.onlinePeople.append(people)
         
             if not self.showAtEnd:
                 self.updateOnlinePeopleGraph()
             
             #self.pause()
+            
+    def addAvgShortestPath(self, path):
+        if len(self.acceptedTypes) == 0 or (VType.avgShortestPathGraph in self.acceptedTypes):
+            self.avgShortestPath.append(path)
+        
+            if not self.showAtEnd:
+                self.updateAvgShortestPathGraph()
         
     def connect(self, fromNode, toNode, weight):
         if (toNode, fromNode) in self.edges.keys():
@@ -394,23 +409,44 @@ class Visualizer(object):
         
         plt.pause(0.01)
         
+    def updateAvgShortestPathGraph(self):
+        plt.figure(self.avgShortestPathFig.number)
+        
+        self.avgShortestPathFig.clear()
+        sub = self.avgShortestPathFig.add_subplot(111)
+        sub.plot(range(len(self.avgShortestPath)), self.avgShortestPath)
+        sub.set_title("Average shortest path to everyone vs time")
+        self.avgShortestPathFig.show()
+        
+        plt.pause(0.01)
+        
     def updateEverything(self):
         if self.showAtEnd:
-            self.updateGraph(self.lastNodesGraph[0], self.lastNodesGraph[1], self.lastNodesGraph[2])
-            self.updatePostsSentTimeGraph()
-            self.updateAvgFriendsGraph()
-            self.updateAvgIgnoredGraph()
-            self.updateAvgLikenessGraph()
-            self.updateAvgFriendsDistanceGraph()
-            self.updateAvgIgnoredDistanceGraph()
-            self.updateOnlinePeopleGraph()
+            if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes):
+                self.updateGraph(self.lastNodesGraph[0], self.lastNodesGraph[1], self.lastNodesGraph[2])
+            if len(self.acceptedTypes) == 0 or (VType.postsSentGraph in self.acceptedTypes):
+                self.updatePostsSentTimeGraph()
+            if len(self.acceptedTypes) == 0 or (VType.avgFriendsGraph in self.acceptedTypes):
+                self.updateAvgFriendsGraph()
+            if len(self.acceptedTypes) == 0 or (VType.avgEnemiesGraph in self.acceptedTypes):
+                self.updateAvgIgnoredGraph()
+            if len(self.acceptedTypes) == 0 or (VType.avgLikenessGraph in self.acceptedTypes):
+                self.updateAvgLikenessGraph()
+            if len(self.acceptedTypes) == 0 or (VType.avgFriendsDistanceGraph in self.acceptedTypes):
+                self.updateAvgFriendsDistanceGraph()
+            if len(self.acceptedTypes) == 0 or (VType.avgEnemiesDistanceGraph in self.acceptedTypes):
+                self.updateAvgIgnoredDistanceGraph()
+            if len(self.acceptedTypes) == 0 or (VType.onlinePeopleGraph in self.acceptedTypes):
+                self.updateOnlinePeopleGraph()
+            if len(self.acceptedTypes) == 0 or (VType.avgShortestPathGraph in self.acceptedTypes):
+                self.updateAvgShortestPathGraph()
     
     def updateMainGraph(self, node=None, edge=None):
         if node != None:
             nx.draw_networkx_nodes(self.mainGraph, {node: node.position.toTouple()}, nodelist=[node])
         
         elif edge != None:
-            firstKey = list(edge.keys())[0]
+            firstKey = edge.keys()[0]
             
             node1 = firstKey[0]
             node2 = firstKey[1]

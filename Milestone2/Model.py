@@ -27,7 +27,7 @@ class Model(object):
 
     def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 15, enemies_affinity = -15,
                  time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05,
-                 visualizer = False, data_collector = None, data_collector_results = None, log_level = 3,
+                 visualizer = False, visualizerOptions = [], data_collector = None, data_collector_results = None, log_level = 3,
                  **kwargs):
         """
         :param num_agents: Maximum number of agents for the simulation
@@ -62,6 +62,7 @@ class Model(object):
         self.total_messages_received = 0
 
         self.visualizer = visualizer
+        self.visualizerOptions = visualizerOptions
 
         if data_collector == None:
             self.data_collector = data_collector
@@ -79,7 +80,7 @@ class Model(object):
         self.spawn_agents(self.num_agents)
 
         if self.visualizer == True:
-            V.Visualizer.createVisualizer(showAtEnd=True)
+            V.Visualizer.createVisualizer(types=self.visualizerOptions, showAtEnd=True)
 
         TM.TimeManager.createManager()
         for x in range (self.time_to_run):
@@ -97,8 +98,7 @@ class Model(object):
                 self.data_collector.collector_round(x)
             self.generate_statistics(x)
 
-        if self.visualizer == True:
-            V.Visualizer.sharedVisualizer.updateEverything()
+        V.Visualizer.sharedVisualizer.updateEverything()
 
         if self.data_collector != None:
             self.data_collector.finalize()
@@ -216,35 +216,54 @@ class Model(object):
 
         likeness = 0.0
         
-        for agent in self.agents:
-            for agentA in agent.affinity_map:
-                likeness += agent.affinity_map[agentA]
+        if len(self.visualizerOptions) == 0 or V.VType.avgLikenessGraph in self.visualizerOptions:
+            for agent in self.agents:
+                for agentA in agent.affinity_map:
+                    likeness += agent.affinity_map[agentA]
                 
         friendDistance = 0.0
         
-        for agent in self.agents:
-            if len(agent.friends) != 0:
-                friendsDist = 0.0
-                for friend in agent.friends:
-                    friendsDist += find_distance(agent, friend)
-            
-                friendDistance += friendsDist / len(agent.friends)
+        if len(self.visualizerOptions) == 0 or V.VType.avgFriendsDistanceGraph in self.visualizerOptions:
+            for agent in self.agents:
+                if len(agent.friends) != 0:
+                    friendsDist = 0.0
+                    for friend in agent.friends:
+                        friendsDist += find_distance(agent, friend)
+                
+                    friendDistance += friendsDist / len(agent.friends)
             
         enemyDistance = 0.0
         
-        for agent in self.agents:
-            if len(agent.enemies) != 0:
-                enemiesDist = 0.0
-                for enemy in agent.enemies:
-                    enemiesDist += find_distance(agent, enemy)
-            
-                enemyDistance += enemiesDist / len(agent.enemies)
+        if len(self.visualizerOptions) == 0 or V.VType.avgEnemiesDistanceGraph in self.visualizerOptions:
+            for agent in self.agents:
+                if len(agent.enemies) != 0:
+                    enemiesDist = 0.0
+                    for enemy in agent.enemies:
+        	            enemiesDist += find_distance(agent, enemy)
+                
+                    enemyDistance += enemiesDist / len(agent.enemies)
                 
         edges = []
         
-        for agent in self.agents:
-            for person in agent.affinity_map:
-                edges.append({(agent, person): agent.affinity_map[person]})
+        if len(self.visualizerOptions) == 0 or V.VType.mainNodesGraph in self.visualizerOptions:
+            for agent in self.agents:
+                for person in agent.affinity_map:
+                    edges.append({(agent, person): agent.affinity_map[person]})
+      
+        totalPath = 0.0
+        pathCount = 0
+      
+        if len(self.visualizerOptions) == 0 or V.VType.avgShortestPathGraph in self.visualizerOptions:  
+            for agent1 in self.agents:
+                for agent2 in self.agents:
+                    if agent1 != agent2 and agent1.online and agent2.online:
+                        path = find_degrees_of_separation(agent1, agent2)
+                        
+                        if path != None:
+                            totalPath += path
+                            pathCount += 1
+        else:
+            pathCount = 1.0
         
         V.Visualizer.sharedVisualizer.addNodesAndEdges(self.agents, edges)  
         V.Visualizer.sharedVisualizer.addPostsSent(self.messages_sent)
@@ -254,6 +273,7 @@ class Model(object):
         V.Visualizer.sharedVisualizer.addAvgFriendsDistance(friendDistance / len(self.agents))
         V.Visualizer.sharedVisualizer.addAvgIgnoredDistance(enemyDistance / len(self.agents))
         V.Visualizer.sharedVisualizer.addOnlinePeople(len(self.online_agents))
+        V.Visualizer.sharedVisualizer.addAvgShortestPath(totalPath / pathCount)
 
 
 def find_degrees_of_separation(agent1, agent2):
@@ -270,7 +290,7 @@ def find_degrees_of_separation(agent1, agent2):
     # Perform breadth-first search to see if we can find agent2 starting from agent1
     if agent1 == agent2:
         return None
-
+    
     if not agent1.friends:
         return None
 
@@ -310,5 +330,5 @@ def find_distance(agent1, agent2):
     return 3961 * c
 
 if __name__ == "__main__":
-    m = Model(time_to_run=5, num_agents=100, visualizer = True)
+    m = Model(time_to_run=20, num_agents=50, visualizer = True)
     m.run_simulation()
