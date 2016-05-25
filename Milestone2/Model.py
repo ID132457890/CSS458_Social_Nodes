@@ -98,7 +98,8 @@ class Model(object):
                 self.data_collector.collector_round(x)
             self.generate_statistics(x)
 
-        V.Visualizer.sharedVisualizer.updateEverything()
+        if self.visualizer == True:
+            V.Visualizer.sharedVisualizer.updateEverything()
 
         if self.data_collector != None:
             self.data_collector.finalize()
