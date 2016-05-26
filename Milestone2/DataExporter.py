@@ -29,7 +29,6 @@ class DataExporter(object):
                 'personality': previous_person.personality,
                 'facets': facet_list,
                 'location': previous_person.location,
-                'online': round,
                 'interests': previous_person.personality.interests,
                 'post_prob': previous_person.personality.post_probability,
                 'repost_prob': previous_person.personality.repost_probability,
@@ -39,6 +38,7 @@ class DataExporter(object):
             }
 
         round = {
+            'online': previous_person.online,
             'sent': (self.last_seen_post_count == self.model.messages_sent),
             'reposts': self.model.messages_received - self.last_seen_recv_count,
             'friends': previous_person.friends,

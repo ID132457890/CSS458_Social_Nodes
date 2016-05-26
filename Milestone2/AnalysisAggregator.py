@@ -12,6 +12,8 @@ import DataExporter
 import numpy as np
 import Personality
 import Person
+import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class AnalysisAggregator(object):
@@ -24,13 +26,19 @@ class AnalysisAggregator(object):
     def collector(self, model, round_totals, data_map):
         self.results.append(round_totals)
 
+    def collector_with_data_map(self, model, round_totals, data_map):
+        self.results.append((round_totals, data_map))
+
     #---------------------------------------------------
     # These methods are different ways that session data can be returned.
     # New methods for different types of processing may be added as needed
-    def return_overall_averages(self, repeat):
-        result_array = np.zeros((repeat,5))
+    def return_overall_averages(self, repeat, final_only = False):
+        result_array = np.zeros((len(self.results),5))
         for x in range(len(self.results)):
             test = self.results[x]
+            if final_only == True:
+                test = (test[-1],)
+
             for round in test:
                 result_array[x, 0] += round['num_messages_sent'] / round['num_online_agents']
                 result_array[x, 1] += round['num_messages_received'] / round['num_online_agents']
@@ -38,7 +46,7 @@ class AnalysisAggregator(object):
                 result_array[x, 3] += round['num_total_enemies'] / round['num_online_agents']
                 result_array[x, 4] += round['num_knowledge'] / round['num_online_agents']
 
-            result_array[x] = result_array[x] / len(test)
+            result_array = result_array / len(test)
 
         return (np.average(result_array[:, 0]), np.std(result_array[:, 0]),
                 np.average(result_array[:, 1]), np.std(result_array[:, 1]),
@@ -46,12 +54,12 @@ class AnalysisAggregator(object):
                 np.average(result_array[:, 3]), np.std(result_array[:, 3]),
                 np.average(result_array[:, 4]), np.std(result_array[:, 4]))
 
-    def return_raw_data(self, repeat):
+    def return_raw_data(self, repeat, final_only=False):
         return self.results
     # End of data processing/session data returning methods
     # ---------------------------------------------------
 
-    def simple_exec(self, reset = True, repeat = 3, modifications = None,
+    def simple_exec(self, reset = True, repeat = 3, modifications = None, final_only = False,
                     processor = return_overall_averages, **kwargs):
         if reset == True:
             self.reset()
@@ -72,20 +80,109 @@ class AnalysisAggregator(object):
             for item in restore:
                 exec("%s=%s" % (item[0], item[1]))
 
-            return processor(self, repeat)
+        return processor(self, repeat, final_only=final_only)
 
+# Utility report functions
+
+def build_node_graph_affinities(dataset):
+    graph = nx.Graph()
+
+    nodes = list(dataset.keys())
+
+    for node in nodes:
+        if dataset[node]['rounds'][-1]['online'] == True:
+            posx, posy = dataset[node]['location']
+            graph.add_node(node, posxy=(posx+180, posy+90))
+
+            edges = dataset[node]['rounds'][-1]['affinity_map']
+            for second_node, affinity in edges.items():
+                if affinity < 0:
+                    color = 'r'
+                else:
+                    color = 'k'
+
+                if affinity != 0:
+                    graph.add_edge(node, second_node, color=color, weight=abs(affinity))
+    return graph
+
+def build_node_graph_friends(dataset):
+    graph = nx.Graph()
+
+    nodes = list(dataset.keys())
+
+    for node in nodes:
+        if dataset[node]['rounds'][-1]['online'] == True:
+            posx, posy = dataset[node]['location']
+            graph.add_node(node, posxy=(posx+180, posy+90))
+
+            edges = dataset[node]['rounds'][-1]['friends']
+            for second_node in edges:
+                graph.add_edge(node, second_node, color='k', weight = .3)
+
+            edges = dataset[node]['rounds'][-1]['enemies']
+            for second_node in edges:
+                graph.add_edge(node, second_node, color='r', weight = .1)
+    return graph
+
+def save_graph(graph_sets, show = False, dpi=300):
+    for x in range(len(graph_sets)):
+        normalize_weights = graph_sets[x][2]
+        graph = graph_sets[x][0]
+        name = graph_sets[x][1]
+        plt.figure(x+1)
+        plt.title(name)
+        edges = graph.edges()
+        colors = [graph[u][v]['color'] for u, v in edges]
+        weights = [graph[u][v]['weight'] for u, v in edges]
+        positions = nx.get_node_attributes(graph, 'posxy')
+        if normalize_weights == True:
+            max_weight = max(weights)
+            weights = [x / (max_weight) for x in weights]
+        nx.draw(graph, positions, edges=edges, edge_color=colors, width=weights, node_size=20)
+        plt.savefig(name+".png", dpi=dpi)
+    if show == True:
+        plt.show()
+
+def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False):
+    plt.figure()
+    plt.title(name)
+    plt.plot(xvals, yvals)
+    plt.ylabel(ylabel)
+    plt.xlabel(xlabel)
+    plt.show()
 
 #----------
 # demonstration of using data export/aggregation
-result_list = []
-
+g = []
 a = AnalysisAggregator()
+famous_values = [0, 5, 10, 15, 20]
+average_values = []
 
+for value in famous_values:
+    results = a.simple_exec(modifications=(("Personality.percent_probability_famous", value),),
+                                      num_agents=40, topics=20, data_collector=DataExporter.DataExporter,
+                                      time_to_run=20, data_collector_results=a.collector_with_data_map, log_level=10,
+                                      processor=AnalysisAggregator.return_raw_data, repeat=1)
+    g.append((build_node_graph_affinities(results[0][1]), "Famous %d%% Affinities" % value, True))
+    g.append((build_node_graph_friends(results[0][1]), "Famous %d%% Friendships" % value, False))
 
+    results = a.simple_exec(modifications=(("Personality.percent_probability_famous", value),),
+                            num_agents=100, topics=20, data_collector=DataExporter.DataExporter,
+                            time_to_run=20, data_collector_results=a.collector, log_level=10,
+                            processor=AnalysisAggregator.return_overall_averages, repeat=10, final_only = True)
+    average_values.append(results[4])  # average number of friends
+
+save_line_graph(famous_values, average_values, "100 Agents Famous %d%% Average Friend Count" % value,
+                ylabel="Number of Friends", xlabel = "Percent of Population Famous")
+save_graph(g)
+
+"""
 result_list.append(("20% fame",
                     a.simple_exec(modifications=(("Personality.percent_probability_famous", 20),),
                                   num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=10, data_collector_results=a.collector, log_level=10)))
+                                  time_to_run=10, data_collector_results=a.collector, log_level=10,
+                                  processor=AnalysisAggregator.return_raw_data)))
+
 result_list.append(("50% fame",
                     a.simple_exec(modifications=(("Personality.percent_probability_famous", 50),),
                                   num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
@@ -93,7 +190,7 @@ result_list.append(("50% fame",
 result_list.append(("dft fame",
                     a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
                                   time_to_run=10, data_collector_results=a.collector, log_level=10)))
-"""
+
 result_list.append((" 50A 10T",
                     a.simple_exec(num_agents=50, topics=10, data_collector=DataExporter.DataExporter,
                                   time_to_run=5, data_collector_results=a.collector, log_level=10)))
@@ -157,10 +254,11 @@ result_list.append(("160 Turn ",
 result_list.append(("320 Turn ",
                     a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
                                   time_to_run=320, data_collector_results=a.collector, log_level=10)))
-"""
+
 
 print("Test           Sent      Dev       Resent      Dev         Friend      Dev         Enemy       Dev         Known       Dev")
 for result in result_list:
     print("%s %10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t" %
           (result[0], result[1][0],result[1][1],result[1][2],result[1][3],result[1][4],result[1][5]
            , result[1][6],result[1][7],result[1][8],result[1][9]))
+"""
