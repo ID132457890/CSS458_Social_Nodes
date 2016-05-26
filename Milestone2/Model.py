@@ -7,6 +7,8 @@ Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
 Overall simulation manager that carries variables and settings that will change the model.
 This class will initiate the social nodes simulation and call appropriate statistics generation
 and visualization modules.
+
+DRIVER CLASS
 """
 
 import Logger as L
