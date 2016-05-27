@@ -153,9 +153,11 @@ def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False):
 
 #----------
 # demonstration of using data export/aggregation
+
+# Plot behavior of model as the number of people who are "famous" change
 g = []
 a = AnalysisAggregator()
-famous_values = [0, 5, 10, 15, 20]
+famous_values = [0, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 average_values = []
 
 for value in famous_values:
@@ -176,86 +178,15 @@ save_line_graph(famous_values, average_values, "100 Agents Famous %d%% Average F
                 ylabel="Number of Friends", xlabel = "Percent of Population Famous")
 save_graph(g)
 
+
+# Plot the behavior of the model as the number of extroverts vs introverts changes
+g = []
+a = AnalysisAggregator()
+extrovert_percentage = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+average_values = []
+
+
 """
-result_list.append(("20% fame",
-                    a.simple_exec(modifications=(("Personality.percent_probability_famous", 20),),
-                                  num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=10, data_collector_results=a.collector, log_level=10,
-                                  processor=AnalysisAggregator.return_raw_data)))
-
-result_list.append(("50% fame",
-                    a.simple_exec(modifications=(("Personality.percent_probability_famous", 50),),
-                                  num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=10, data_collector_results=a.collector, log_level=10)))
-result_list.append(("dft fame",
-                    a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=10, data_collector_results=a.collector, log_level=10)))
-
-result_list.append((" 50A 10T",
-                    a.simple_exec(num_agents=50, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=5, data_collector_results=a.collector, log_level=10)))
-
-result_list.append(("100A 10T",
-                    a.simple_exec(num_agents=100, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("200A 10T",
-                    a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("300A 10T",
-                    a.simple_exec(num_agents=300, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("400A 10T",
-                    a.simple_exec(num_agents=400, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("500A 10T",
-                    a.simple_exec(num_agents=500, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-
-#----------------
-# Tests as topic count increases
-result_list.append(("200A 10T",
-                    a.simple_exec(num_agents=200, topics=10, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("200A 20T",
-                    a.simple_exec(num_agents=200, topics=20, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("200A 40T",
-                    a.simple_exec(num_agents=200, topics=40, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-
-result_list.append(("200A 80T",
-                    a.simple_exec(num_agents=200, topics=80, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("200A 160T",
-                    a.simple_exec(num_agents=200, topics=160, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("200A 320T",
-                    a.simple_exec(num_agents=200, topics=320, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-
-#----------------
-# Tests as round count increases
-result_list.append(("10 Turn  ",
-                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
-                                  time_to_run=10, data_collector_results=a.collector, log_level=10)))
-result_list.append(("20 Turn  ",
-                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
-                                  time_to_run=20, data_collector_results=a.collector, log_level=10)))
-result_list.append(("40 Turn  ",
-                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
-                                  time_to_run=40, data_collector_results=a.collector, log_level=10)))
-
-result_list.append(("80 Turn  ",
-                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
-                                  time_to_run=80, data_collector_results=a.collector, log_level=10)))
-result_list.append(("160 Turn ",
-                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
-                                  time_to_run=160, data_collector_results=a.collector, log_level=10)))
-result_list.append(("320 Turn ",
-                    a.simple_exec(num_agents=100, topics=30, data_collector=DataExporter.DataExporter,
-                                  time_to_run=320, data_collector_results=a.collector, log_level=10)))
-
-
 print("Test           Sent      Dev       Resent      Dev         Friend      Dev         Enemy       Dev         Known       Dev")
 for result in result_list:
     print("%s %10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t" %

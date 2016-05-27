@@ -21,6 +21,8 @@ hemisphere_disliking = -2
 close_liking_multiplier = 1.5
 distant_liking_multiplier = 1.5
 percent_probability_famous = 2
+many_friends_threshold = 30
+distance_close_threshold = 2000
 
 # For random personality generator - Both of these must sum to <= 1
 prob_to_like = .5
@@ -196,36 +198,36 @@ class PersonalityFacet(object):
 
 class LikesPeopleWithManyFriends(PersonalityFacet):
     def process_post(self, message, current_score, person):
-        num_of_friends = len(message.friends)
-        if num_of_friends > 100:
+        num_of_friends = len(message.sender.friends)
+        if num_of_friends > many_friends_threshold:
             current_score += many_friends_liking
         return self.return_result(message, current_score, person)
         
 class LikesPeopleWithFame(PersonalityFacet):
     def process_post(self, message, current_score, person):
-        fame = message.fame
-        if fame > 100:
+        fame = message.sender.personality.fame
+        if fame > (100 - percent_probability_famous):
             current_score += fame_liking
         return self.return_result(message, current_score, person)
         
 class HatesPeopleWithFame(PersonalityFacet):
     def process_post(self, message, current_score, person):
-        fame = message.fame
-        if fame > 100:
+        fame = message.sender.personality.fame
+        if fame > (100 - percent_probability_famous):
             current_score += fame_disliking
         return self.return_result(message, current_score, person)
         
 class LikesPeopleWithFewFriends(PersonalityFacet):
     def process_post(self, message, current_score, person):
-        num_of_friends = len(message.friends)
-        if num_of_friends < 100:
+        num_of_friends = len(message.sender.friends)
+        if num_of_friends < many_friends_threshold:
             current_score += many_friends_disliking
         return self.return_result(message, current_score, person)
 
 class LikesClosePeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
-        if distance < 2000 and current_score > 0:
+        if distance < distance_close_threshold and current_score > 0:
             current_score *= close_liking_multiplier if current_score > 0 else 1 / close_liking_multiplier
         return self.return_result(message, current_score, person)
 
@@ -233,7 +235,7 @@ class LikesClosePeople(PersonalityFacet):
 class LikesDistantPeople(PersonalityFacet):
     def process_post(self, message, current_score, person):
         distance = Model.find_distance(person, message.sender)
-        if distance > 2000 and current_score > 0:
+        if distance > distance_close_threshold and current_score > 0:
             current_score *= distant_liking_multiplier if current_score > 0 else 1 / distant_liking_multiplier
         return self.return_result(message, current_score, person)
 
