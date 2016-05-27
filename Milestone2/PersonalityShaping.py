@@ -22,8 +22,13 @@ def static_extrovert_personalities_who_like_distant_people(model):
         agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
 
 #------------------
+# Here is the "creep" example that is in the 'presentationinfo' file:
 
-
+def creep_agent(agent):
+    agent.personality.repost_probability = (random.random() * .1)
+    agent.personality.post_probability = (random.random() * .2)
+    agent.personality.fame = 0
+    agent.personality.probability_read_reposts = (random.random() * .8) + 0.2
 
 # introduce some randomness within the range of categories
 #------------------
