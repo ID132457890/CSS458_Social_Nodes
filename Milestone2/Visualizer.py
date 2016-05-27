@@ -9,14 +9,16 @@ from enum import Enum
 class VType(Enum):
     allGraphs = 0
     mainNodesGraph = 1
-    postsSentGraph = 2
-    avgFriendsGraph = 3
-    avgEnemiesGraph = 4
-    avgLikenessGraph = 5
-    avgFriendsDistanceGraph = 6
-    avgEnemiesDistanceGraph = 7
-    onlinePeopleGraph = 8
-    avgShortestPathGraph = 9
+    friendsNodesGraph = 2
+    enemiesNodesGraph = 3
+    postsSentGraph = 4
+    avgFriendsGraph = 5
+    avgEnemiesGraph = 6
+    avgLikenessGraph = 7
+    avgFriendsDistanceGraph = 8
+    avgEnemiesDistanceGraph = 9
+    onlinePeopleGraph = 10
+    avgShortestPathGraph = 11
 
 class VItem(object):
     item = None
@@ -171,7 +173,7 @@ class Visualizer(object):
         
         self.showAtEnd = showAtEnd
         
-        if len(types) == 0 or VType.mainNodesGraph in types:
+        if len(types) == 0 or (VType.mainNodesGraph in types) or (VType.friendsNodesGraph in types) or (VType.enemiesNodesGraph in types):
             self.mainGraphFig = plt.figure()
         
         if len(types) == 0 or VType.postsSentGraph in types:
@@ -224,7 +226,7 @@ class Visualizer(object):
         #self.updateMainGraph(node=node)
         
     def addNodesAndEdges(self, nodes, edges):
-        if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes):
+        if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes) or (VType.friendsNodesGraph in self.acceptedTypes) or (VType.enemiesNodesGraph in self.acceptedTypes):
             graph = nx.Graph()
             widths = []
             colors = []
@@ -250,20 +252,21 @@ class Visualizer(object):
                         weight = 6.0
                     elif weight < -6.0:
                         weight = 6.0
-                    
-                    if weight >= 4:
-                        colors.append("g")
-                    elif weight >= 0:
-                        colors.append("#96ba07")
-                    elif weight >= -4:
-                        colors.append("#f59f0a")
-                    elif weight >= -6:
-                        colors.append("r")
                 
-                    weight /= 6.0
-                    graph.add_edge(firstNode, secondNode, weight=weight)
+                    if ((VType.friendsNodesGraph in self.acceptedTypes) and weight >= 4) or ((VType.enemiesNodesGraph in self.acceptedTypes) and weight >= -6 and weight < -4) or (VType.mainNodesGraph in self.acceptedTypes):
+                        if weight >= 4:
+                            colors.append("g")
+                        elif weight >= 0:
+                            colors.append("#96ba07")
+                        elif weight >= -4:
+                            colors.append("#f59f0a")
+                        elif weight >= -6:
+                            colors.append("r")
+                        
+                        weight /= 6.0
+                        graph.add_edge(firstNode, secondNode, weight=weight)
                 
-                    widths.append(weight)
+                        widths.append(weight)
             
             self.lastNodesGraph.append(graph)
             self.lastNodesGraph.append(widths)
