@@ -16,6 +16,7 @@ import Person as P
 import Personality as Personality
 import math
 import random
+import PersonalityShaping
 
 import TimeManager as TM
 import Visualizer as V
@@ -336,25 +337,7 @@ def find_distance(agent1, agent2):
     c = 2 * math.atan2(a ** .5, (1 - a) ** .5)
     return 3961 * c
 
-def static_introvert_personalities_who_like_distant_people(model):
-    for agent in model.agents:
-        agent.personality.repost_probability = 0.1
-        agent.personality.post_probability = 0.1
-        agent.personality.fame = 0
-        agent.personality.probability_read_reposts = 0.5
-        #agent.interests = {1: 5, 2: -5}
-        agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
-        
-def static_extrovert_personalities_who_like_distant_people(model):
-    for agent in model.agents:
-        agent.personality.repost_probability = 0.9
-        agent.personality.post_probability = 0.9
-        agent.personality.fame = 70
-        agent.personality.probability_read_reposts = 0.8
-        #agent.interests = {1: 5, 2: -5}
-        agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
-
 if __name__ == "__main__":
-    m = Model(time_to_run=20, num_agents=100, force_personalities=static_introvert_personalities_who_like_distant_people,
+    m = Model(time_to_run=20, num_agents=100, force_personalities=PersonalityShaping.static_introvert_personalities_who_like_distant_people,
               visualizer = True)
     m.run_simulation()

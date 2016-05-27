@@ -140,6 +140,7 @@ def save_graph(graph_sets, show = False, dpi=300):
             max_weight = max(weights)
             weights = [x / (max_weight) for x in weights]
         print (positions)
+        print (graph)
         nx.draw(graph, positions, edges=edges, edge_color=colors, width=weights, node_size=20)
         plt.savefig(name+".png", dpi=dpi)
     if show == True:
@@ -209,8 +210,8 @@ for value in extrovert_percentage:
                                       num_agents=40, topics=20, data_collector=DataExporter.DataExporter,
                                       time_to_run=20, data_collector_results=a.collector_with_data_map, log_level=10,
                                       processor=AnalysisAggregator.return_raw_data, repeat=1)
-    g.append((build_node_graph_affinities(results[0][1]), "Famous %d%% Affinities" % value, True))
-    g.append((build_node_graph_friends(results[0][1]), "Famous %d%% Friendships" % value, False))
+    g.append((build_node_graph_affinities(results[0][1]), "Extrovert %d%% Affinities" % value, True))
+    g.append((build_node_graph_friends(results[0][1]), "Extrovert %d%% Friendships" % value, False))
 
     results = a.simple_exec(force_personalities = set_intovert_extrovert_traits,
                             num_agents=100, topics=20, data_collector=DataExporter.DataExporter,
