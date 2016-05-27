@@ -14,8 +14,8 @@ import Model
 repost_probability_mutiplier = 1
 many_friends_liking = 2
 many_friends_disliking = -2
-many_friends_liking = 2
-many_friends_disliking = -2
+fame_liking = 2
+fame_disliking = -2
 hemisphere_liking = 2
 hemisphere_disliking = -2
 close_liking_multiplier = 1.5

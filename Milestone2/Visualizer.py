@@ -1,3 +1,4 @@
+import numpy as N
 import networkx as nx
 import matplotlib.pyplot as plt
 import TimeManager as TM
@@ -27,6 +28,7 @@ class VItem(object):
 
 class Visualizer(object):
     sharedVisualizer = None
+    sharedVisualizers = []
     
     mainGraph = nx.Graph()
     
@@ -74,6 +76,93 @@ class Visualizer(object):
     @staticmethod
     def createVisualizer(types=[], showAtEnd=False):
         Visualizer.sharedVisualizer = Visualizer(types=types, showAtEnd=showAtEnd)
+        Visualizer.sharedVisualizers.append(Visualizer.sharedVisualizer)
+        
+    @staticmethod
+    def showWithPersonalities(personalities):
+        #edges
+        edges = []
+        for visualizer in Visualizer.sharedVisualizers:
+            edges.append(len(visualizer.lastNodesGraph[1]))
+            
+        plt.figure()
+        plt.title("# of connections")
+        plt.bar(range(len(edges)), edges, align="center")
+        plt.xticks(range(len(edges)), personalities, size="small")
+        
+        plt.show()
+        
+        #posts sent
+        postsSent = []
+        for visualizer in Visualizer.sharedVisualizers:
+            postsSent.append(N.sum(N.array(visualizer.postsSent)))
+            
+        plt.figure()
+        plt.title("Total posts sent")
+        plt.bar(range(len(postsSent)), postsSent, align="center")
+        plt.xticks(range(len(postsSent)), personalities, size="small")
+        
+        #friends
+        friends = []
+        for visualizer in Visualizer.sharedVisualizers:
+            friends.append(visualizer.avgFriends[-1])
+            
+        plt.figure()
+        plt.title("Average # of friends")
+        plt.bar(range(len(friends)), friends, align="center")
+        plt.xticks(range(len(friends)), personalities, size="small")
+        
+        #enemies
+        enemies = []
+        for visualizer in Visualizer.sharedVisualizers:
+            enemies.append(visualizer.avgIgnored[-1])
+            
+        plt.figure()
+        plt.title("Average # of enemies")
+        plt.bar(range(len(enemies)), enemies, align="center")
+        plt.xticks(range(len(enemies)), personalities, size="small")
+        
+        #likeness
+        likeness = []
+        for visualizer in Visualizer.sharedVisualizers:
+            likeness.append(visualizer.avgLikeness[-1])
+            
+        plt.figure()
+        plt.title("Average post likeness")
+        plt.bar(range(len(likeness)), likeness, align="center")
+        plt.xticks(range(len(likeness)), personalities, size="small")
+        
+        #friends distance
+        friendsDistance = []
+        for visualizer in Visualizer.sharedVisualizers:
+            friendsDistance.append(visualizer.avgIgnoredDistance[-1])
+            
+        plt.figure()
+        plt.title("Average friend distance")
+        plt.bar(range(len(friendsDistance)), friendsDistance, align="center")
+        plt.xticks(range(len(friendsDistance)), personalities, size="small")
+        
+        #enemies distance
+        enemiesDistance = []
+        for visualizer in Visualizer.sharedVisualizers:
+            enemiesDistance.append(visualizer.avgIgnoredDistance[-1])
+            
+        plt.figure()
+        plt.title("Average enemy distance")
+        plt.bar(range(len(enemiesDistance)), enemiesDistance, align="center")
+        plt.xticks(range(len(enemiesDistance)), personalities, size="small")
+        
+        #path distance
+        paths = []
+        for visualizer in Visualizer.sharedVisualizers:
+            paths.append(visualizer.avgShortestPath[-1])
+            
+        plt.figure()
+        plt.title("Average shortest path")
+        plt.bar(range(len(paths)), paths, align="center")
+        plt.xticks(range(len(paths)), personalities, size="small")
+        
+        plt.show()
         
     def __init__(self, types=[], showAtEnd=False):
         

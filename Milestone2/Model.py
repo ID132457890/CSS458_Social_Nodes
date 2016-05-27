@@ -339,13 +339,22 @@ def find_distance(agent1, agent2):
 def static_introvert_personalities_who_like_distant_people(model):
     for agent in model.agents:
         agent.personality.repost_probability = 0.1
-        agent.personality.post_probability = 0.2
+        agent.personality.post_probability = 0.1
         agent.personality.fame = 0
         agent.personality.probability_read_reposts = 0.5
-        agent.interests = {1: 5, 2: -5}
+        #agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+        
+def static_extrovert_personalities_who_like_distant_people(model):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.9
+        agent.personality.post_probability = 0.9
+        agent.personality.fame = 70
+        agent.personality.probability_read_reposts = 0.8
+        #agent.interests = {1: 5, 2: -5}
         agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
 
 if __name__ == "__main__":
-    m = Model(time_to_run=20, num_agents=50, force_personalities=static_introvert_personalities_who_like_distant_people,
-              visualizer = False)
+    m = Model(time_to_run=20, num_agents=100, force_personalities=static_introvert_personalities_who_like_distant_people,
+              visualizer = True)
     m.run_simulation()
