@@ -338,6 +338,18 @@ def find_distance(agent1, agent2):
     return 3961 * c
 
 if __name__ == "__main__":
-    m = Model(time_to_run=20, num_agents=100, force_personalities=PersonalityShaping.static_introvert_personalities_who_like_distant_people,
-              visualizer = True)
+    m = Model(time_to_run=20, num_agents=200, force_personalities=PersonalityShaping.personality_shaping_flexible,
+              visualizer = False)
+
+    m.personality_shaping = {
+        'ranges': 'proportional',
+        'definitions': [(40, [PersonalityShaping.dynamic_extrovert_agent,
+                             PersonalityShaping.clear_facets,
+                             (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
+                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople)]),
+                        (60, [PersonalityShaping.dynamic_introvert_agent, PersonalityShaping.clear_facets,
+                             (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
+                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)])]
+    }
+
     m.run_simulation()

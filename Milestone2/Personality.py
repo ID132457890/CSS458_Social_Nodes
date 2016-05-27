@@ -29,7 +29,7 @@ prob_to_like = .5
 prob_to_dislike = .3
 
 # Tuple containing the minimum and maximum magnitude of a like or dislike
-amount_to_like_dislike = (1,15)
+amount_to_like_dislike = (1,7)
 
 
 def random_personality_generator(model):

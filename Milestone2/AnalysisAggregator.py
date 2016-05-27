@@ -99,6 +99,7 @@ def build_node_graph_affinities(dataset):
             for second_node, affinity in edges.items():
                 if affinity < 0:
                     color = 'r'
+                    affinity *= -1
                 else:
                     color = 'k'
 
@@ -141,6 +142,7 @@ def save_graph(graph_sets, show = False, dpi=300):
             weights = [x / (max_weight) for x in weights]
         print (positions)
         print (graph)
+        print (edges)
         nx.draw(graph, positions, edges=edges, edge_color=colors, width=weights, node_size=20)
         plt.savefig(name+".png", dpi=dpi)
     if show == True:

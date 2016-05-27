@@ -11,7 +11,7 @@ import random
 import Personality as Personality
 import Post as Post
 
-spam_to_world_proportion = .01 # proportion of agents that certian users are allowed to spam to
+spam_to_world_proportion = .01 # proportion of agents that certain users are allowed to spam to
 
 class Person(object):
     def __init__(self, model, location = None, friends_affinity = 150, enemies_affinity = -200,
@@ -175,7 +175,7 @@ class Person(object):
             elif friend.accept_repost():
                 friend.receive_post(post)
 
-        if post.sender.spam_to_world():
+        if self.spam_to_world():
             num_to_spam = int(len(self.model.online_agents) * spam_to_world_proportion)
             for x in range (num_to_spam):
                 # does not exclude duplicates, exact quantity spammed is not important
