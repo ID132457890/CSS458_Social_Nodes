@@ -243,7 +243,9 @@ class Visualizer(object):
                     (not ((secondNode, firstNode) in graph.edges())):
                 
                     weight = edge[edge.keys()[0]] / 54 * 6
-                
+                    #wRange = ((edge[edge.keys()[0]] - minWeight) * 4) / (maxWeight - minWeight)
+                    #weight = wRange - 2
+                    
                     if weight > 6.0:
                         weight = 6.0
                     elif weight < -6.0:
@@ -258,6 +260,7 @@ class Visualizer(object):
                     elif weight >= -6:
                         colors.append("r")
                 
+                    weight /= 6.0
                     graph.add_edge(firstNode, secondNode, weight=weight)
                 
                     widths.append(weight)
