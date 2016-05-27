@@ -14,6 +14,7 @@ import Personality
 import Person
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 
 class AnalysisAggregator(object):
@@ -138,6 +139,7 @@ def save_graph(graph_sets, show = False, dpi=300):
         if normalize_weights == True:
             max_weight = max(weights)
             weights = [x / (max_weight) for x in weights]
+        print (positions)
         nx.draw(graph, positions, edges=edges, edge_color=colors, width=weights, node_size=20)
         plt.savefig(name+".png", dpi=dpi)
     if show == True:
@@ -155,6 +157,7 @@ def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False):
 # demonstration of using data export/aggregation
 
 # Plot behavior of model as the number of people who are "famous" change
+"""
 g = []
 a = AnalysisAggregator()
 famous_values = [0, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -174,17 +177,51 @@ for value in famous_values:
                             processor=AnalysisAggregator.return_overall_averages, repeat=10, final_only = True)
     average_values.append(results[4])  # average number of friends
 
-save_line_graph(famous_values, average_values, "100 Agents Famous %d%% Average Friend Count" % value,
+save_line_graph(famous_values, average_values, "100 Agents - Famous Percent vs Average Friend Count",
                 ylabel="Number of Friends", xlabel = "Percent of Population Famous")
-save_graph(g)
-
+#save_graph(g)
+"""
 
 # Plot the behavior of the model as the number of extroverts vs introverts changes
 g = []
 a = AnalysisAggregator()
+current_run = 0
 extrovert_percentage = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 average_values = []
 
+def set_intovert_extrovert_traits(model):
+    extroverts = extrovert_percentage[current_run]
+    for x in range(len(model.agents)):
+        agent = model.agents[x]
+        if x < extroverts * len(model.agents) / 100:
+            agent.personality.repost_probability = (random.random() * .5) + 0.5
+            agent.personality.post_probability = (random.random() * .5) + 0.5
+            agent.personality.fame = 100 if random.random() < .80 else agent.personality.fame
+            agent.personality.probability_read_reposts = (random.random() * .5) + 0.3
+        else:
+            agent.personality.repost_probability = random.random() * .5
+            agent.personality.post_probability = random.random() * .3
+            agent.personality.fame = 100 if random.random() < .95 else agent.personality.fame
+            agent.personality.probability_read_reposts = random.random() * .3
+
+for value in extrovert_percentage:
+    results = a.simple_exec(force_personalities = set_intovert_extrovert_traits,
+                                      num_agents=40, topics=20, data_collector=DataExporter.DataExporter,
+                                      time_to_run=20, data_collector_results=a.collector_with_data_map, log_level=10,
+                                      processor=AnalysisAggregator.return_raw_data, repeat=1)
+    g.append((build_node_graph_affinities(results[0][1]), "Famous %d%% Affinities" % value, True))
+    g.append((build_node_graph_friends(results[0][1]), "Famous %d%% Friendships" % value, False))
+
+    results = a.simple_exec(force_personalities = set_intovert_extrovert_traits,
+                            num_agents=100, topics=20, data_collector=DataExporter.DataExporter,
+                            time_to_run=20, data_collector_results=a.collector, log_level=10,
+                            processor=AnalysisAggregator.return_overall_averages, repeat=10, final_only = True)
+    average_values.append(results[4])  # average number of friends
+    current_run += 1
+
+save_line_graph(extrovert_percentage, average_values, "100 Agents Extrovert Percent vs Average Friend Count",
+                ylabel="Number of Friends", xlabel = "Percent of Population Extroverted")
+save_graph(g)
 
 """
 print("Test           Sent      Dev       Resent      Dev         Friend      Dev         Enemy       Dev         Known       Dev")
