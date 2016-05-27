@@ -30,7 +30,7 @@ class Model(object):
     def __init__(self, num_agents = 3000, topics = 20, friends_affinity = 15, enemies_affinity = -15,
                  time_to_run = 100, probability_initially_online = 0.5, probability_become_online = 0.05,
                  visualizer = False, visualizerOptions = [], data_collector = None, data_collector_results = None, log_level = 3,
-                 **kwargs):
+                 force_personalities = None, **kwargs):
         """
         :param num_agents: Maximum number of agents for the simulation
         :param topics: Number of topics of interest
@@ -71,6 +71,7 @@ class Model(object):
         else:
             self.data_collector = data_collector(self, data_collector_results)
 
+        self.force_personalities = force_personalities
 
     def run_simulation(self):
         """
@@ -80,6 +81,9 @@ class Model(object):
 
         # Create agents for simulation
         self.spawn_agents(self.num_agents)
+
+        if self.force_personalities != None:
+            self.force_personalities(self)
 
         if self.visualizer == True:
             V.Visualizer.createVisualizer(types=self.visualizerOptions, showAtEnd=True)
@@ -332,6 +336,16 @@ def find_distance(agent1, agent2):
     c = 2 * math.atan2(a ** .5, (1 - a) ** .5)
     return 3961 * c
 
+def static_introvert_personalities_who_like_distant_people(model):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.1
+        agent.personality.post_probability = 0.2
+        agent.personality.fame = 0
+        agent.personality.probability_read_reposts = 0.5
+        agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+
 if __name__ == "__main__":
-    m = Model(time_to_run=20, num_agents=50, visualizer = True)
+    m = Model(time_to_run=20, num_agents=50, force_personalities=static_introvert_personalities_who_like_distant_people,
+              visualizer = False)
     m.run_simulation()
