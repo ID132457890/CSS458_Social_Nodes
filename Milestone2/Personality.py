@@ -127,16 +127,18 @@ class Personality(object):
         :param message: message to process
         :return: amount that the message was liked or disliked
         """
-        like_total = 0
+        if self.person.online == True:
+            like_total = 0
 
-        for topic in message.topics:
-            if topic in self.interests:
-                like_total += self.interests[topic]
+            for topic in message.topics:
+                if topic in self.interests:
+                    like_total += self.interests[topic]
 
-        like_total = self.facets.process_post(message, like_total, self.person)
-        self.model.logger.log(0, "%r had reaction of %d to %r" % (self.person, like_total, message))
-        self.repost_decide(message)
-        return like_total
+            like_total = self.facets.process_post(message, like_total, self.person)
+            self.model.logger.log(0, "%r had reaction of %d to %r" % (self.person, like_total, message))
+            self.repost_decide(message)
+            return like_total
+        return None
 
     def create_post(self):
         """

@@ -18,7 +18,7 @@ class DataExporter(object):
         self.send_results = send_results
 
     def collector_turn(self, round, previous_person):
-        if not previous_person in self.data_map:
+        if previous_person not in self.data_map.keys():
             facet_list = []
             next_facet = previous_person.personality.facets
             while (next_facet != None):
@@ -41,11 +41,11 @@ class DataExporter(object):
             'online': previous_person.online,
             'sent': (self.last_seen_post_count == self.model.messages_sent),
             'reposts': self.model.messages_received - self.last_seen_recv_count,
-            'friends': previous_person.friends,
-            'enemies': previous_person.enemies,
+            'friends': set(previous_person.friends),
+            'enemies': set(previous_person.enemies),
             'friends_count': len(previous_person.friends),
             'enemies_count': len(previous_person.enemies),
-            'affinity_map': previous_person.affinity_map
+            'affinity_map': dict(previous_person.affinity_map)
         }
 
         self.data_map[previous_person]['rounds'].append(round)
@@ -75,6 +75,27 @@ class DataExporter(object):
 
         self.last_seen_post_count = 0
         self.last_seen_recv_count = 0
+
+        #
+        # Useful for debugging
+        if len(self.data_map) < 40:
+            print ("uhoh")
+            print (len(self.data_map))
+            print (len(self.data_map.keys()))
+            print ("----")
+            print (self.col_ran)
+            print (self.data_map.keys())
+            print("*")
+            print (len(self.model.agents))
+            print("*")
+            print (self.model.agents)
+            x = [x for x in self.model.agents if x not in self.data_map.keys()]
+            print (x)
+            for xx in x:
+                print (xx.online)
+                print (self.model.agents.index(xx))
+            exit()
+        #
 
     def finalize(self):
         #print (self.data_map)

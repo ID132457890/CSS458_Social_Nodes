@@ -4,7 +4,8 @@ Social Nodes Project
 
 Amritpal Sandhu, Billy Savanh, Kevin Rogers, and David Larsen
 
-Module to allow batch processing of simulations
+Module to allow batch processing of simulations and averaging of results over a multiple
+test runs.
 """
 
 import Model
@@ -87,9 +88,7 @@ class AnalysisAggregator(object):
 
 def build_node_graph_affinities(dataset):
     graph = nx.Graph()
-
     nodes = list(dataset.keys())
-
     for node in nodes:
         if dataset[node]['rounds'][-1]['online'] == True:
             posx, posy = dataset[node]['location']
@@ -109,9 +108,7 @@ def build_node_graph_affinities(dataset):
 
 def build_node_graph_friends(dataset):
     graph = nx.Graph()
-
     nodes = list(dataset.keys())
-
     for node in nodes:
         if dataset[node]['rounds'][-1]['online'] == True:
             posx, posy = dataset[node]['location']
@@ -126,12 +123,12 @@ def build_node_graph_friends(dataset):
                 graph.add_edge(node, second_node, color='r', weight = .1)
     return graph
 
-def save_graph(graph_sets, show = False, dpi=300):
+def save_graph(graph_sets, dpi=300):
     for x in range(len(graph_sets)):
         normalize_weights = graph_sets[x][2]
         graph = graph_sets[x][0]
         name = graph_sets[x][1]
-        plt.figure(x+1)
+        fig = plt.figure(x+1)
         plt.title(name)
         edges = graph.edges()
         colors = [graph[u][v]['color'] for u, v in edges]
@@ -140,17 +137,12 @@ def save_graph(graph_sets, show = False, dpi=300):
         if normalize_weights == True:
             max_weight = max(weights)
             weights = [x / (max_weight) for x in weights]
-        print (positions)
-        print (graph)
-        print (edges)
         nx.draw(graph, positions, edges=edges, edge_color=colors, width=weights, node_size=20)
         plt.savefig(name+".png", dpi=dpi)
-    if show == True:
-        plt.show()
-    plt.close('all')
+        plt.close(fig)
 
 def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False, dpi=300):
-    plt.figure()
+    fig=plt.figure()
     plt.title(name)
     plt.plot(xvals, yvals)
     plt.ylabel(ylabel)
@@ -158,13 +150,13 @@ def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False, dpi=300):
     plt.savefig(name + ".png", dpi=dpi)
     if show == True:
         plt.show()
-    plt.close('all')
+    plt.close(fig)
 
 #----------
 # demonstration of using data export/aggregation
 
 # Plot behavior of model as the number of people who are "famous" change
-"""
+
 g = []
 a = AnalysisAggregator()
 famous_values = [0, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -186,8 +178,8 @@ for value in famous_values:
 
 save_line_graph(famous_values, average_values, "100 Agents - Famous Percent vs Average Friend Count",
                 ylabel="Number of Friends", xlabel = "Percent of Population Famous")
-#save_graph(g)
-"""
+save_graph(g)
+
 
 # Plot the behavior of the model as the number of extroverts vs introverts changes
 g = []
@@ -230,7 +222,12 @@ save_line_graph(extrovert_percentage, average_values, "100 Agents Extrovert Perc
                 ylabel="Number of Friends", xlabel = "Percent of Population Extroverted")
 save_graph(g)
 
+
+
 """
+
+This code will print a simple table of the statistics that come out of return_overall_averages
+
 print("Test           Sent      Dev       Resent      Dev         Friend      Dev         Enemy       Dev         Known       Dev")
 for result in result_list:
     print("%s %10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t%10.2f\t" %

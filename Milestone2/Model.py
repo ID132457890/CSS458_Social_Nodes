@@ -94,8 +94,7 @@ class Model(object):
             for agent in self.agents:
                 agent.take_turn()
                 while self.agents_to_settle:
-                    agent = self.agents_to_settle.pop()
-                    agent.settle_reposts()
+                    self.agents_to_settle.pop().settle_reposts()
                 if self.data_collector != None:
                     self.data_collector.collector_turn(x, agent)
             if self.visualizer == True:

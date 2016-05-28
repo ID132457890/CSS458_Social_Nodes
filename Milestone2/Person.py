@@ -125,6 +125,10 @@ class Person(object):
         :param message: message to process
         :return: nothing
         """
+        if self.online == False:
+            self.inbox = None
+            return
+
         if message.sender not in self.enemies:
             if self.personality is None:
                 pass
