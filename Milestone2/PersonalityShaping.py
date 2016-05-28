@@ -62,6 +62,11 @@ def add_facet(agent, facet):
     agent.personality.facets = facet(next_facet=facet_chain)
 
 
+#----------------
+# Make agents online to eliminate variability of having offline agents
+def make_online(agent):
+    agent.make_online()
+
 
 
 

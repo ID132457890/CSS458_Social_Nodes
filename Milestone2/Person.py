@@ -64,10 +64,13 @@ class Person(object):
             # agent currently is not online, randomly decide whether to make this agent online
             if random.random() < self.model.probability_become_online:
                 # just give them one random friend for now...
-                self.model.logger.log(1, "%r got connected to the internet." % self)
-                self.online = True
-                self.model.online_agents.append(self)
-                self.model.initial_connect_friend(self)
+                self.make_online()
+
+    def make_online(self):
+        self.model.logger.log(1, "%r got connected to the internet." % self)
+        self.online = True
+        self.model.online_agents.append(self)
+        self.model.initial_connect_friend(self)
 
     def receive_post(self, message):
         """

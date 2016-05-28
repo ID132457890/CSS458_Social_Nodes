@@ -147,14 +147,18 @@ def save_graph(graph_sets, show = False, dpi=300):
         plt.savefig(name+".png", dpi=dpi)
     if show == True:
         plt.show()
+    plt.close('all')
 
-def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False):
+def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False, dpi=300):
     plt.figure()
     plt.title(name)
     plt.plot(xvals, yvals)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
-    plt.show()
+    plt.savefig(name + ".png", dpi=dpi)
+    if show == True:
+        plt.show()
+    plt.close('all')
 
 #----------
 # demonstration of using data export/aggregation
