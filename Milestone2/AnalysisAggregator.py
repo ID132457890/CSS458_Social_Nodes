@@ -98,7 +98,6 @@ def build_node_graph_affinities(dataset):
             for second_node, affinity in edges.items():
                 if affinity < 0:
                     color = 'r'
-                    affinity *= -1
                 else:
                     color = 'k'
 
