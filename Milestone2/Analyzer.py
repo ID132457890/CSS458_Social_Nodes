@@ -2,9 +2,14 @@
 import Model as M
 import Visualizer as V
 
+"""
+Sample class to do simple analysis on how different personalities affect data.
+"""
+
 personalities = ["Introvert", "Extrovert"]
 models = []
 
+#Run simulation many times, and change personality
 for num in range(len(personalities)):
     m = None
     if num == 0:

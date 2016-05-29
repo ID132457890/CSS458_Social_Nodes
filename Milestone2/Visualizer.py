@@ -29,6 +29,11 @@ class VItem(object):
         self.time = time
 
 class Visualizer(object):
+    """
+    Class which shows most of the data in graph format. It shows only one nodes graph at a time,
+    but it can show multiple bar and line graphs. 
+    """
+    
     sharedVisualizer = None
     sharedVisualizers = []
     
@@ -77,11 +82,24 @@ class Visualizer(object):
     
     @staticmethod
     def createVisualizer(types=[], showAtEnd=False):
+        """
+        Creates the visualizer that is going to be updated by other objects.
+        
+        types: enum types that are wanted to be represented
+        showAtEnd: boolean to decide if graphs are shown during or after the simulation
+        """
+        
         Visualizer.sharedVisualizer = Visualizer(types=types, showAtEnd=showAtEnd)
         Visualizer.sharedVisualizers.append(Visualizer.sharedVisualizer)
         
     @staticmethod
     def showWithPersonalities(personalities):
+        """
+        At the end of multiple simulations, show data in comparison to personality types.
+        
+        personalities: list of string naming the personalities.
+        """
+        
         #edges
         edges = []
         for visualizer in Visualizer.sharedVisualizers:
@@ -167,6 +185,12 @@ class Visualizer(object):
         plt.show()
         
     def __init__(self, types=[], showAtEnd=False):
+        """
+        Constructor to initialize a visualizer.
+        
+        types: enum for graphs that need to be shown.
+        showAtEnd: boolean for showing graphs during or after simulation.
+        """
         
         self.acceptedTypes = types[:]
         self.lastNodesGraph = []
@@ -226,12 +250,21 @@ class Visualizer(object):
         #self.updateMainGraph(node=node)
         
     def addNodesAndEdges(self, nodes, edges):
+        """
+        Add new people and connections to the main graph.
+        The nodes and edges will only be stored.
+        
+        The edges is a list with this format: [{(node1, node2): weight}, ...]
+        
+        nodes: list of people that need to be displayed
+        edges: list of connection dictionaries with their weights
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes) or (VType.friendsNodesGraph in self.acceptedTypes) or (VType.enemiesNodesGraph in self.acceptedTypes):
             graph = nx.Graph()
             widths = []
             colors = []
             
-            #del self.lastNodesGraph[:]
             self.lastNodesGraph = []
         
             for node in nodes:
@@ -253,6 +286,7 @@ class Visualizer(object):
                     elif weight < -6.0:
                         weight = 6.0
                 
+                    #Color code the lines
                     if ((VType.friendsNodesGraph in self.acceptedTypes) and weight >= 4) or ((VType.enemiesNodesGraph in self.acceptedTypes) and weight >= -6 and weight < -4) or (VType.mainNodesGraph in self.acceptedTypes):
                         if weight >= 4:
                             colors.append("g")
@@ -268,6 +302,7 @@ class Visualizer(object):
                 
                         widths.append(weight)
             
+            #Append for storage of last state
             self.lastNodesGraph.append(graph)
             self.lastNodesGraph.append(widths)
             self.lastNodesGraph.append(colors)
@@ -278,6 +313,12 @@ class Visualizer(object):
             #self.pause()
         
     def addPostsSent(self, postsSent):
+        """
+        Adds a number of posts that has been sent to be stored for later displaying.
+        
+        postsSent: number of posts
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.postsSentGraph in self.acceptedTypes):
             self.postsSent.append(postsSent)
             
@@ -287,11 +328,23 @@ class Visualizer(object):
             #self.pause()
         
     def addPostsShared(self, postsShared):
+        """
+        Adds a number of posts that has been shared to be stored for later displaying.
+        
+        postsShared: number of posts
+        """
+        
         self.postsShared.append(postsShared)
         
         self.updatePostsSharedTimeGraph()
         
     def addAvgFriends(self, friends):
+        """
+        Adds a number of friends to be stored for later displaying.
+        
+        friends: number of friends in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.avgFriendsGraph in self.acceptedTypes):
             self.avgFriends.append(friends)
             
@@ -301,6 +354,12 @@ class Visualizer(object):
             #self.pause()
         
     def addAvgIgnored(self, ignored):
+        """
+        Adds a number of enemies to be stored for later displaying.
+        
+        enemies: number of enemies in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.avgEnemiesGraph in self.acceptedTypes):
             self.avgIgnored.append(ignored)
         
@@ -310,6 +369,12 @@ class Visualizer(object):
             #self.pause()
         
     def addAvgLikeness(self, likeness):
+        """
+        Adds a connection likeness to be stored for later displaying.
+        
+        likeness: likeness in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.avgLikenessGraph in self.acceptedTypes):
             self.avgLikeness.append(likeness)
             
@@ -319,6 +384,12 @@ class Visualizer(object):
             #self.pause()
         
     def addAvgFriendsDistance(self, distance):
+        """
+        Adds a distance among friends to be stored for later displaying.
+        
+        distance: distance among friends in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.avgFriendsDistanceGraph in self.acceptedTypes):
             self.avgFriendsDistance.append(distance)
             
@@ -328,6 +399,12 @@ class Visualizer(object):
             #self.pause()
         
     def addAvgIgnoredDistance(self, distance):
+        """
+        Adds a distance among enemies to be stored for later displaying.
+        
+        distance: distance among enemies in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.avgEnemiesDistanceGraph in self.acceptedTypes):
             self.avgIgnoredDistance.append(distance)
             
@@ -342,6 +419,12 @@ class Visualizer(object):
         self.updateAvgMissedGraph()
         
     def addOnlinePeople(self, people):
+        """
+        Adds number of online people to be stored for later displaying.
+        
+        people: num of online people in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.onlinePeopleGraph in self.acceptedTypes):
             self.onlinePeople.append(people)
         
@@ -351,6 +434,12 @@ class Visualizer(object):
             #self.pause()
             
     def addAvgShortestPath(self, path):
+        """
+        Adds the shortest path to be stored for later displaying.
+        
+        path: shortest path to everyone in a certain round on average per person.
+        """
+        
         if len(self.acceptedTypes) == 0 or (VType.avgShortestPathGraph in self.acceptedTypes):
             self.avgShortestPath.append(path)
         
@@ -381,6 +470,17 @@ class Visualizer(object):
             #self.updateMainGraph(edge={(fromNode, toNode): weight})
     
     def updateGraph(self, graph, widths, edgeColors):
+        """
+        Shows the main nodes graph. 
+        
+        Depending on the options, it will show all of the nodes, only the friends,
+        or only the enemies.
+        
+        graph: nx graph to show
+        widths: list of widths of each connection
+        edgeColors: list of string of color of each connection
+        """
+        
         plt.figure(self.mainGraphFig.number)
         self.mainGraphFig.clear()
         
@@ -406,6 +506,10 @@ class Visualizer(object):
         plt.pause(0.01)
             
     def updatePostsSentTimeGraph(self):
+        """
+        Shows the posts sent vs round graph.
+        """
+        
         plt.figure(self.postsSentFig.number)
         
         self.postsSentFig.clear()
@@ -417,6 +521,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updatePostsSharedTimeGraph(self):
+        """
+        Shows the posts shared vs round graph.
+        """
+        
         plt.figure(self.postsSharedFig.number)
         
         self.postsSharedFig.clear()
@@ -428,6 +536,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateAvgFriendsGraph(self):
+        """
+        Shows the average num of friends vs round graph.
+        """
+        
         plt.figure(self.avgFriendsFig.number)
         
         self.avgFriendsFig.clear()
@@ -439,6 +551,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateAvgIgnoredGraph(self):
+        """
+        Shows the average num of enemies vs round graph.
+        """
+        
         plt.figure(self.avgIgnoredFig.number)
         
         self.avgIgnoredFig.clear()
@@ -450,6 +566,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateAvgLikenessGraph(self):
+        """
+        Shows the average likeness value vs round graph.
+        """
+        
         plt.figure(self.avgLikenessFig.number)
         
         self.avgLikenessFig.clear()
@@ -461,6 +581,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateAvgFriendsDistanceGraph(self):
+        """
+        Shows the average distance of friends vs round graph.
+        """
+        
         plt.figure(self.avgFriendsDistanceFig.number)
         
         self.avgFriendsDistanceFig.clear()
@@ -472,6 +596,10 @@ class Visualizer(object):
         plt.pause(0.01)
     
     def updateAvgIgnoredDistanceGraph(self):
+        """
+        Shows the average distance of enemies vs round graph.
+        """
+        
         plt.figure(self.avgIgnoredDistanceFig.number)
         
         self.avgIgnoredDistanceFig.clear()
@@ -494,6 +622,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateOnlinePeopleGraph(self):
+        """
+        Shows the num of online people vs round graph.
+        """
+        
         plt.figure(self.onlinePeopleFig.number)
         
         self.onlinePeopleFig.clear()
@@ -505,6 +637,10 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateAvgShortestPathGraph(self):
+        """
+        Shows the average shortest path to everyone vs round graph.
+        """
+        
         plt.figure(self.avgShortestPathFig.number)
         
         self.avgShortestPathFig.clear()
@@ -516,8 +652,11 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updateEverything(self):
+        """
+        Shows all graphs only if the simulation doesn't produce real time graphs.
+        """
         if self.showAtEnd:
-            if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes):
+            if len(self.acceptedTypes) == 0 or (VType.mainNodesGraph in self.acceptedTypes) or (VType.friendsNodesGraph in self.acceptedTypes) or (VType.enemiesNodesGraph in self.acceptedTypes):
                 self.updateGraph(self.lastNodesGraph[0], self.lastNodesGraph[1], self.lastNodesGraph[2])
             if len(self.acceptedTypes) == 0 or (VType.postsSentGraph in self.acceptedTypes):
                 self.updatePostsSentTimeGraph()
@@ -535,23 +674,6 @@ class Visualizer(object):
                 self.updateOnlinePeopleGraph()
             if len(self.acceptedTypes) == 0 or (VType.avgShortestPathGraph in self.acceptedTypes):
                 self.updateAvgShortestPathGraph()
-    
-    def updateMainGraph(self, node=None, edge=None):
-        if node != None:
-            nx.draw_networkx_nodes(self.mainGraph, {node: node.position.toTouple()}, nodelist=[node])
-        
-        elif edge != None:
-            firstKey = edge.keys()[0]
-            
-            node1 = firstKey[0]
-            node2 = firstKey[1]
-                        
-            nx.draw_networkx_edges(self.mainGraph, \
-                                  {node1: node1.position.toTouple(), node2: node2.position.toTouple()}, \
-                                  width=edge[firstKey], \
-                                  edgelist=[firstKey])
-                                                    
-        plt.show()
         
     def pause(self, time=0.5):
         plt.pause(time)
