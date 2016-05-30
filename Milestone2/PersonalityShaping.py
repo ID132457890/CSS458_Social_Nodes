@@ -3,6 +3,77 @@ import random
 
 # basic way to set all agents to a specific type
 #------------------
+
+def random_personalities(model):    #Method to randomly initialized personality
+    for agent in model.agents:      #types to 5 sub-categories
+        rand = random.randint(0,11)
+        if rand <= 2: 
+            introvert(agent)
+        if rand > 2 and rand <= 4:
+            extrovert(agent)
+            pass
+        if rand > 4 and rand <= 6:
+            netrual(agent)
+            pass
+        if rand > 6 and rand <= 8:
+            creep(agent)
+            pass
+        if rand > 8 and rand <= 10:
+            post_abuser(agent)
+            pass
+
+#---------------------------------------
+#The 5 sub categories for the randomization defintion above
+            
+def introvert(agent):
+    agent.p_type = 1
+    agent.personality.repost_probability = random.uniform(.05,.3)
+    agent.personality.post_probability = random.uniform(.05, .3)
+    agent.personality.fame = random.randint(0,16)
+    agent.personality.probability_read_reposts = 0.3
+    #agent.interests = {1: 5, 2: -5}
+    #agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+
+def extrovert(agent):
+    agent.p_type = 2
+    agent.personality.repost_probability = random.uniform(.5, .9)
+    agent.personality.post_probability = random.uniform(.5, .9)
+    agent.personality.fame = random.randint(0,66)
+    agent.personality.probability_read_reposts = 0.6
+    #agent.interests = {1: 5, 2: -5}
+    #agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+
+def netrual(agent):
+    agent.p_type = 3
+    agent.personality.repost_probability = random.uniform(.2, .7)
+    agent.personality.post_probability = random.uniform(.2, .7)
+    agent.personality.fame = random.randint(0,31)
+    agent.personality.probability_read_reposts = 0.4
+    #agent.interests = {1: 5, 2: -5}
+    #agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+        
+def creep(agent):
+    agent.p_type = 4
+    agent.personality.repost_probability = 0.1
+    agent.personality.post_probability = 0.1
+    agent.personality.fame = random.randint(0,11)
+    agent.personality.probability_read_reposts = 0.9
+    #agent.interests = {1: 5, 2: -5}
+    #agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+
+def post_abuser(agent):
+    agent.p_type = 5
+    agent.personality.repost_probability = 0.7
+    agent.personality.post_probability = 0.9
+    agent.personality.fame = random.randint(0,11)
+    agent.personality.probability_read_reposts = 0.1
+    #agent.interests = {1: 5, 2: -5}
+    #agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+
+#Can add more personalities
+#------------------------------------------------------
+
+
 def static_introvert_personalities_who_like_distant_people(model):
     for agent in model.agents:
         agent.personality.repost_probability = 0.1
@@ -65,7 +136,6 @@ def static_friends_independent_personalities_who_like_distant_people(model, face
         agent.personality.probability_read_reposts = 0.8\
         #agent.interests = {1: 5, 2: -5}
         agent.personality.facets = facets
-
 #------------------
 # Here is the "creep" example that is in the 'presentationinfo' file:
 
