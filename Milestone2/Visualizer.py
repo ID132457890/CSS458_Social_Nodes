@@ -287,7 +287,7 @@ class Visualizer(object):
                         weight = 6.0
                 
                     #Color code the lines
-                    if ((VType.friendsNodesGraph in self.acceptedTypes) and weight >= 4) or ((VType.enemiesNodesGraph in self.acceptedTypes) and weight >= -6 and weight < -4) or (VType.mainNodesGraph in self.acceptedTypes):
+                    if ((VType.friendsNodesGraph in self.acceptedTypes) and weight >= 4) or ((VType.enemiesNodesGraph in self.acceptedTypes) and weight >= -6 and weight < -4) or (VType.mainNodesGraph in self.acceptedTypes) or (len(self.acceptedTypes) == 0):
                         if weight >= 4:
                             colors.append("g")
                         elif weight >= 0:
