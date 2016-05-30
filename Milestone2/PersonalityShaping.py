@@ -20,6 +20,51 @@ def static_extrovert_personalities_who_like_distant_people(model):
         agent.personality.probability_read_reposts = 0.8
         #agent.interests = {1: 5, 2: -5}
         agent.personality.facets = Personality.LovesPeopleInOppositeHemisphere()
+        
+def static_neutral_personalities_who_like_distant_people(model, facets):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.5
+        agent.personality.post_probability = 0.5
+        agent.personality.fame = 50
+        agent.personality.probability_read_reposts = 0.5
+        #agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = facets
+        
+def static_creep_personalities_who_like_distant_people(model, facets):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.1
+        agent.personality.post_probability = 0.1
+        agent.personality.fame = 10
+        agent.personality.probability_read_reposts = 0.9
+        #agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = facets
+        
+def static_post_abuser_personalities_who_like_distant_people(model, facets):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.7
+        agent.personality.post_probability = 0.9
+        agent.personality.fame = 10
+        agent.personality.probability_read_reposts = 0.1
+        #agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = facets
+        
+def static_friends_dependent_personalities_who_like_distant_people(model, facets):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.9
+        agent.personality.post_probability = 0.3
+        agent.personality.fame = 10
+        agent.personality.probability_read_reposts = 0.8
+        #agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = facets
+        
+def static_friends_independent_personalities_who_like_distant_people(model, facets):
+    for agent in model.agents:
+        agent.personality.repost_probability = 0.3
+        agent.personality.post_probability = 0.9
+        agent.personality.fame = 10
+        agent.personality.probability_read_reposts = 0.8\
+        #agent.interests = {1: 5, 2: -5}
+        agent.personality.facets = facets
 
 #------------------
 # Here is the "creep" example that is in the 'presentationinfo' file:
