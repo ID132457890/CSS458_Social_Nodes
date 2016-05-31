@@ -1,6 +1,7 @@
 import numpy as N
 import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import TimeManager as TM
 import pylab as pl
 import Model as M
@@ -310,7 +311,6 @@ class Visualizer(object):
                 
                     #Color code the lines
                     if ((VType.friendsNodesGraph in self.acceptedTypes) and weight >= 4) or ((VType.enemiesNodesGraph in self.acceptedTypes) and weight >= -6 and weight < -4) or (VType.mainNodesGraph in self.acceptedTypes) or (len(self.acceptedTypes) == 0):
-                        print("showed");
                         
                         if weight >= 4:
                             colors.append("g")
@@ -546,16 +546,32 @@ class Visualizer(object):
         colors = []
         for node in nodes:
             if node.online:
-                colors.append("g")
+                if node.p_type == 1:
+                    colors.append("g")
+                elif node.p_type == 2:
+                    colors.append("#0080ff")
+                elif node.p_type == 3:
+                    colors.append("#cccc00")
+                elif node.p_type == 4:
+                    colors.append("#000000")
+                elif node.p_type == 5:
+                    colors.append("#a0a0a0")
             else:
                 colors.append("r")
         
         #if len(widths) != 0:
         pos=nx.fruchterman_reingold_layout(graph)
-        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=pos, width=widths, node_color=colors, \
+        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
         edge_color=edgeColors)
         
         self.mainGraphFig.show()
+        
+        patch1 = mpatches.Patch(color='g', label='Introvert')
+        patch2 = mpatches.Patch(color='#0080ff', label='Extrovert')
+        patch3 = mpatches.Patch(color='#cccc00', label='Neutral')
+        patch4 = mpatches.Patch(color='#000000', label='Creep')
+        patch5 = mpatches.Patch(color='#a0a0a0', label='Post abuser')
+        plt.legend(handles=[patch1, patch2, patch3, patch4, patch5])
             
         plt.pause(0.01)
             
@@ -614,7 +630,7 @@ class Visualizer(object):
         self.avgIgnoredFig.clear()
         sub = self.avgIgnoredFig.add_subplot(111)
         sub.plot(range(len(self.avgIgnored)), self.avgIgnored)
-        sub.set_title("Average # of ignored vs time")
+        sub.set_title("Average # of enemies vs time")
         self.avgIgnoredFig.show()
         
         plt.pause(0.01)
@@ -659,7 +675,7 @@ class Visualizer(object):
         self.avgIgnoredDistanceFig.clear()
         sub = self.avgIgnoredDistanceFig.add_subplot(111)
         sub.plot(range(len(self.avgIgnoredDistance)), self.avgIgnoredDistance)
-        sub.set_title("Average ignored distance vs time")
+        sub.set_title("Average enemies distance vs time")
         self.avgIgnoredDistanceFig.show()
         
         plt.pause(0.01)
