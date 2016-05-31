@@ -268,9 +268,12 @@ def personality_shaping_flexible(model):
     traits you want to be given to those ranges as well, for example, if you create this variable before running
     run_simulation, you'll get the expected mix:
 
-    Ranges are defineda as proportional (given as a percentage) or absolute agent number
+    Ranges are defineda as proportional (given as a percentage) or absolute agent number, or probilistic
     if proportional is used, all must add to exactly 100% if absolute is used, total count must equal size of
     model.agents
+
+    If probabilistic is used, the percentage chance of a particular type being used is specified in the range field.
+    All entries must equal 100 (100%) in the probabilistic range configuration option.
 
     if 'ptype' is specified as below, the ptype of the person will be defined as specified for the defined
     personality type (and override any setting of the personality type that was given in the definition).
@@ -305,6 +308,14 @@ def personality_shaping_flexible(model):
                         {'ptype': 1}),
                         (40, [PersonalityShaping.creep_agent], {'ptype': 4})]
     }
+    m.personality_shaping = {
+        'ranges': 'probabilistic',
+        'definitions': [(20, [PersonalityShaping.introvert]),
+                        (20, [PersonalityShaping.extrovert]),
+                        (20, [PersonalityShaping.netrual]),
+                        (20, [PersonalityShaping.creep]),
+                        (20, [PersonalityShaping.post_abuser])]
+        }
 
     The ranges will be read in order, so the first definition will be applied to the lowest-indexed agents, and
     the last defined group will be applied to the highest-indexed agents.
