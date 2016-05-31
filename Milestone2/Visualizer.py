@@ -3,6 +3,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import TimeManager as TM
 import pylab as pl
+import Model as M
+import Person as P
 
 from enum import Enum
 
@@ -19,6 +21,7 @@ class VType(Enum):
     avgEnemiesDistanceGraph = 9
     onlinePeopleGraph = 10
     avgShortestPathGraph = 11
+    personalityGraphs = 12
 
 class VItem(object):
     item = None
@@ -237,6 +240,25 @@ class Visualizer(object):
         if len(types) == 0 or VType.avgShortestPathGraph in types:    
             self.avgShortestPathFig = plt.figure()
             self.avgShortestPath = []
+            
+        if len(types) == 0 or VType.personalityGraphs in types:
+            self.personalityPostsSentFig = plt.figure()
+            self.personalityPostsSent = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            
+            self.personalityConnectionsFig = plt.figure()
+            self.personalityConnections = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            
+            self.personalityFriendsFig = plt.figure()
+            self.personalityFriends = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            
+            self.personalityEnemiesFig = plt.figure()
+            self.personalityEnemies = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            
+            self.personalityFriendsDistanceFig = plt.figure()
+            self.personalityFriendsDistance = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+            
+            self.personalityEnemiesDistanceFig = plt.figure()
+            self.personalityEnemiesDistance = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
     
     def addNode(self, node):
         item = VItem(node, TM.TimeManager.sharedManager.time)
@@ -288,6 +310,8 @@ class Visualizer(object):
                 
                     #Color code the lines
                     if ((VType.friendsNodesGraph in self.acceptedTypes) and weight >= 4) or ((VType.enemiesNodesGraph in self.acceptedTypes) and weight >= -6 and weight < -4) or (VType.mainNodesGraph in self.acceptedTypes) or (len(self.acceptedTypes) == 0):
+                        print("showed");
+                        
                         if weight >= 4:
                             colors.append("g")
                         elif weight >= 0:
@@ -326,6 +350,35 @@ class Visualizer(object):
                 self.updatePostsSentTimeGraph()
             
             #self.pause()
+    
+    def addPersonalityTypes(self, agents):
+        
+        if len(self.acceptedTypes) == 0 or (VType.personalityGraphs in self.acceptedTypes):
+            for agent in agents:
+                self.personalityPostsSent[agent.p_type - 1] += agent.posts_sent
+                self.personalityConnections[agent.p_type - 1] += len(agent.affinity_map)
+                self.personalityFriends[agent.p_type - 1] += len(agent.friends)
+                self.personalityEnemies[agent.p_type - 1] += len(agent.enemies)
+                
+                friendsDistance = 0.0
+                for friend in agent.friends:
+                    friendsDistance += M.find_distance(agent, friend)
+                    
+                enemiesDistance = 0.0
+                for enemy in agent.enemies:
+                    enemiesDistance += M.find_distance(agent, enemy)
+                
+                if len(agent.friends) != 0:
+                    self.personalityFriendsDistance[agent.p_type - 1] += friendsDistance / len(agent.friends)
+                if len(agent.enemies) != 0:
+                    self.personalityEnemiesDistance[agent.p_type - 1] += enemiesDistance / len(agent.enemies)
+                
+            self.personalityConnections = (N.array(self.personalityConnections) / N.array(P.categoryNumOfPeople(agents))).tolist()
+            self.personalityFriends = (N.array(self.personalityFriends) / N.array(P.categoryNumOfPeople(agents))).tolist()
+            self.personalityEnemies = (N.array(self.personalityEnemies) / N.array(P.categoryNumOfPeople(agents))).tolist()
+            self.personalityFriendsDistance = (N.array(self.personalityFriendsDistance) / N.array(P.categoryNumOfPeople(agents))).tolist()
+            self.personalityEnemiesDistance = (N.array(self.personalityEnemiesDistance) / N.array(P.categoryNumOfPeople(agents))).tolist()
+            self.updatePersonalityGraphs()
         
     def addPostsShared(self, postsShared):
         """
@@ -498,7 +551,8 @@ class Visualizer(object):
                 colors.append("r")
         
         #if len(widths) != 0:
-        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
+        pos=nx.fruchterman_reingold_layout(graph)
+        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=pos, width=widths, node_color=colors, \
         edge_color=edgeColors)
         
         self.mainGraphFig.show()
@@ -650,6 +704,47 @@ class Visualizer(object):
         self.avgShortestPathFig.show()
         
         plt.pause(0.01)
+        
+    def updatePersonalityGraphs(self):
+        personalities = ["1", "2", "3", "4", "5", "6", "7"]
+        
+        plt.figure(self.personalityPostsSentFig.number)
+        self.personalityPostsSentFig.clear()
+        plt.title("Posts sent per personality")
+        plt.bar(range(len(self.personalityPostsSent)), self.personalityPostsSent, align="center")
+        plt.xticks(range(len(self.personalityPostsSent)), personalities, size="small")
+        
+        plt.figure(self.personalityConnectionsFig.number)
+        self.personalityConnectionsFig.clear()
+        plt.title("Connections per personality")
+        plt.bar(range(len(self.personalityConnections)), self.personalityConnections, align="center")
+        plt.xticks(range(len(self.personalityConnections)), personalities, size="small")
+        
+        plt.figure(self.personalityFriendsFig.number)
+        self.personalityFriendsFig.clear()
+        plt.title("# of friends per personality")
+        plt.bar(range(len(self.personalityFriends)), self.personalityFriends, align="center")
+        plt.xticks(range(len(self.personalityFriends)), personalities, size="small")
+        
+        plt.figure(self.personalityEnemiesFig.number)
+        self.personalityEnemiesFig.clear()
+        plt.title("# of enemies per personality")
+        plt.bar(range(len(self.personalityEnemies)), self.personalityEnemies, align="center")
+        plt.xticks(range(len(self.personalityEnemies)), personalities, size="small")
+        
+        plt.figure(self.personalityFriendsDistanceFig.number)
+        self.personalityFriendsDistanceFig.clear()
+        plt.title("Friends distance per personality")
+        plt.bar(range(len(self.personalityFriendsDistance)), self.personalityFriendsDistance, align="center")
+        plt.xticks(range(len(self.personalityFriendsDistance)), personalities, size="small")
+        
+        plt.figure(self.personalityEnemiesDistanceFig.number)
+        self.personalityEnemiesDistanceFig.clear()
+        plt.title("Enemies distance per personality")
+        plt.bar(range(len(self.personalityEnemiesDistance)), self.personalityEnemiesDistance, align="center")
+        plt.xticks(range(len(self.personalityEnemiesDistance)), personalities, size="small")
+        
+        plt.show()
         
     def updateEverything(self):
         """
