@@ -184,7 +184,7 @@ class Person(object):
                 friend.receive_post(post)
 
         if self.spam_to_world():
-            num_to_spam = int(len(self.model.online_agents) * spam_to_world_proportion)
+            num_to_spam = int(len(self.model.online_agents) * (spam_to_world_proportion * self.personality.fame / 100))
             for x in range (num_to_spam):
                 # does not exclude duplicates, exact quantity spammed is not important
                 self.model.online_agents[random.randint(0, len(self.model.online_agents) - 1)].receive_post(post)

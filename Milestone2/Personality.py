@@ -20,7 +20,6 @@ hemisphere_liking = 2
 hemisphere_disliking = -2
 close_liking_multiplier = 1.5
 distant_liking_multiplier = 1.5
-percent_probability_famous = 2
 many_friends_threshold = 30
 distance_close_threshold = 2000
 
@@ -160,7 +159,7 @@ class Personality(object):
 
         :return: True if a post should be randomly spammed to other agents
         """
-        if self.fame > (100 - percent_probability_famous):
+        if self.fame + random.random() * 100 > 100:
             return True
         else:
             return False
@@ -173,12 +172,8 @@ class Personality(object):
         :param message: message which is a candidate for being reposted
         :return: nothing
         """
-        if message.sender.personality.fame < (100 - percent_probability_famous):
-            if random.random() < self.repost_probability:
-                self.person.dispatch_post(message)
-        else:
+        if random.random() < self.repost_probability:
             self.person.dispatch_post(message)
-
 
 class PersonalityFacet(object):
     """
@@ -208,14 +203,14 @@ class LikesPeopleWithManyFriends(PersonalityFacet):
 class LikesPeopleWithFame(PersonalityFacet):
     def process_post(self, message, current_score, person):
         fame = message.sender.personality.fame
-        if fame > (100 - percent_probability_famous):
+        if fame > (random.random() * 100):
             current_score += fame_liking
         return self.return_result(message, current_score, person)
         
 class HatesPeopleWithFame(PersonalityFacet):
     def process_post(self, message, current_score, person):
         fame = message.sender.personality.fame
-        if fame > (100 - percent_probability_famous):
+        if fame > (random.random() * 100):
             current_score += fame_disliking
         return self.return_result(message, current_score, person)
         
