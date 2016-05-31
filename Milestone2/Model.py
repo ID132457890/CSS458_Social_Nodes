@@ -143,6 +143,11 @@ class Model(object):
         :return: nothing
         """
         # Randomly decide to create 2 friend connections or 1
+
+        if len(self.online_agents) < 3:
+            raise Exception("At least 3 agents must be initially online for friendships to properly form.  " +
+                            "Please re-run with a greater number of agents, or increase the initially online " +
+                            "probability")
         if random.random() < .40:
             num_friends = 2
         else:
