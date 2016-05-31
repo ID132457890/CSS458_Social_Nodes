@@ -281,6 +281,7 @@ class Model(object):
         V.Visualizer.sharedVisualizer.addAvgIgnoredDistance(enemyDistance / len(self.agents))
         V.Visualizer.sharedVisualizer.addOnlinePeople(len(self.online_agents))
         V.Visualizer.sharedVisualizer.addAvgShortestPath(totalPath / pathCount)
+        V.Visualizer.sharedVisualizer.addPersonalityTypes(self.agents)
 
 
 def find_degrees_of_separation(agent1, agent2):
@@ -338,7 +339,7 @@ def find_distance(agent1, agent2):
 
 if __name__ == "__main__":
     m = Model(time_to_run=20, num_agents=200, force_personalities=PersonalityShaping.personality_shaping_flexible,
-              visualizer = False)
+              visualizer = False, visualizerOptions=[V.VType.personalityGraphs])
 
     m.personality_shaping = {
         'ranges': 'proportional',
