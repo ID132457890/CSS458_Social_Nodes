@@ -13,6 +13,14 @@ import Post as Post
 
 spam_to_world_proportion = .05 # proportion of agents that certain users are allowed to spam to
 
+def categoryNumOfPeople(people):
+    categories = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    
+    for person in people:
+        categories[person.p_type - 1] += 1
+    
+    return categories
+
 class Person(object):
     def __init__(self, model, p_type=None, location = None, friends_affinity = 150, enemies_affinity = -200,
                  personality = None, online = False):
