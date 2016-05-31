@@ -347,16 +347,18 @@ if __name__ == "__main__":
               visualizer = False, visualizerOptions=[])
 
     m.personality_shaping = {
-        'ranges': 'proportional',
-        'definitions': [(30, [PersonalityShaping.dynamic_extrovert_agent,
+        'ranges': 'absolute',
+        'definitions': [(60, [PersonalityShaping.dynamic_extrovert_agent,
                               PersonalityShaping.clear_facets,
                              (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
-                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople)]),
-                        (50, [PersonalityShaping.dynamic_introvert_agent,
+                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople)],
+                        {'ptype': 2}),
+                        (100, [PersonalityShaping.dynamic_introvert_agent,
                               PersonalityShaping.clear_facets,
                              (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
-                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)]),
-                        (20, [PersonalityShaping.creep_agent])]
+                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)],
+                        {'ptype': 1}),
+                        (40, [PersonalityShaping.creep_agent], {'ptype': 4})]
     }
 
     m.run_simulation()

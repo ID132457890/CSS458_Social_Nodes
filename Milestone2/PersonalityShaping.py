@@ -249,30 +249,46 @@ def set_intovert_extrovert_traits(model):
 
 def personality_shaping_flexible(model):
     """
-    # This will allow you to set a certain percentage to a certain type and allow you to specify specific optional
-    # traits you want to be given to those ranges as well, for example, if you create this variable before running
-    # run_simulation, you'll get the expected mix:
+    This will allow you to set a certain percentage to a certain type and allow you to specify specific optional
+    traits you want to be given to those ranges as well, for example, if you create this variable before running
+    run_simulation, you'll get the expected mix:
 
-    model.personality_shaping = {
-        'ranges' : 'proportional',       # proportional (given as a percentage) or absolute agent numbers
-                                         # if proportional is used, all must add to exactly 100%
-                                         # if absolute is used, total count must equal size of model.agents
-        'definitions': [(20, [PersonalityShaping.DynamicExtrovertAgent, PersonalityShaping.clear_facets,
+    Ranges are defineda as proportional (given as a percentage) or absolute agent number
+    if proportional is used, all must add to exactly 100% if absolute is used, total count must equal size of
+    model.agents
+
+    if 'ptype' is specified as below, the ptype of the person will be defined as specified for the defined
+    personality type (and override any setting of the personality type that was given in the definition).
+    If you ptype is specified in this definition, then whatever ptype is defined in the specified type
+    will be preserved.
+
+    m.personality_shaping = {
+        'ranges': 'proportional',
+        'definitions': [(30, [PersonalityShaping.dynamic_extrovert_agent,
+                              PersonalityShaping.clear_facets,
                              (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
-                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople]),
-                        (80, [PersonalityShaping.DynamicExtrovertAgent, PersonalityShaping.clear_facets,
+                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople)],
+                        {'ptype': 2}),
+                        (50, [PersonalityShaping.dynamic_introvert_agent,
+                              PersonalityShaping.clear_facets,
                              (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
-                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)])]
+                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)],
+                        {'ptype': 1}),
+                        (20, [PersonalityShaping.creep_agent], {'ptype': 4})]
     }
-    Alternately, for the same effect using absolute numbering, this can be done (assuming 200 agents):
-    model.personality_shaping = {
-        'ranges' : 'absolute',
-        'definitions': [(40, [PersonalityShaping.DynamicExtrovertAgent, PersonalityShaping.clear_facets,
+    m.personality_shaping = {
+        'ranges': 'absolute',
+        'definitions': [(60, [PersonalityShaping.dynamic_extrovert_agent,
+                              PersonalityShaping.clear_facets,
                              (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
-                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople)]]),
-                        (160, [PersonalityShaping.DynamicExtrovertAgent, PersonalityShaping.clear_facets,
+                             (PersonalityShaping.add_facet, Personality.LikesDistantPeople)],
+                        {'ptype': 2}),
+                        (100, [PersonalityShaping.dynamic_introvert_agent,
+                              PersonalityShaping.clear_facets,
                              (PersonalityShaping.add_facet, Personality.HatesPeopleWithFame),
-                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)])]
+                             (PersonalityShaping.add_facet, Personality.LikesClosePeople)],
+                        {'ptype': 1}),
+                        (40, [PersonalityShaping.creep_agent], {'ptype': 4})]
     }
 
     The ranges will be read in order, so the first definition will be applied to the lowest-indexed agents, and
@@ -294,7 +310,15 @@ def personality_shaping_flexible(model):
     current_index = 0
     cumulative_percent = 0
     for definition in shape_definitions:
-        indexer, settings = definition
+        ptype = None
+
+        if len(definition) < 3:
+            indexer, settings = definition
+        else:
+            indexer, settings, set_dict = definition
+            if 'ptype' in set_dict:
+                ptype = set_dict['ptype']
+
         if pro_idx == True:
             cumulative_percent += indexer
             if cumulative_percent > 100:
@@ -314,6 +338,8 @@ def personality_shaping_flexible(model):
                     setting[0](model.agents[current_index], setting[1])
                 else:
                     setting(model.agents[current_index])
+            if ptype != None:
+                model.agents[current_index].p_type = ptype
             current_index += 1
 
     if current_index != len(model.agents):
