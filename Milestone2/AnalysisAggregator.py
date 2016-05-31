@@ -19,6 +19,9 @@ import random
 
 
 class AnalysisAggregator(object):
+    """
+    Class to allow the averaging of results over multiple test runs
+    """
     def __init__(self):
         self.results = []
 
@@ -34,7 +37,13 @@ class AnalysisAggregator(object):
     #---------------------------------------------------
     # These methods are different ways that session data can be returned.
     # New methods for different types of processing may be added as needed
-    def return_overall_averages(self, repeat, final_only = False):
+    def return_overall_averages(self, final_only = False):
+        """
+        Returns the average results over multiple test runs
+
+        :param final_only: Whether to only consider the last round of the simulation in the averages
+        :return: tuple of averaged result data
+        """
         result_array = np.zeros((len(self.results),5))
         for x in range(len(self.results)):
             test = self.results[x]
@@ -56,13 +65,27 @@ class AnalysisAggregator(object):
                 np.average(result_array[:, 3]), np.std(result_array[:, 3]),
                 np.average(result_array[:, 4]), np.std(result_array[:, 4]))
 
-    def return_raw_data(self, repeat, final_only=False):
+    def return_raw_data(self, final_only=False):
+        """
+        Returns the complete data as returned by the DataExporter module
+        :param final_only: Not used (but provided as part of the data return interface)
+        :return: Raw data provided by DataExporter
+        """
         return self.results
     # End of data processing/session data returning methods
     # ---------------------------------------------------
 
     def simple_exec(self, reset = True, repeat = 3, modifications = None, final_only = False,
                     processor = return_overall_averages, **kwargs):
+        """
+        :param reset: Whether to reset the rest results from previous executions
+        :param repeat: Number of times to repeat the test
+        :param modifications: A list of variable changes that are desired for this test run
+        :param final_only: Whether to only consider the final round of the test results
+        :param processor: Function to use to process the resultant data
+        :param kwargs: Arguments to pass onto model.py
+        :return: data as provided by the specified processor
+        """
         if reset == True:
             self.reset()
 
@@ -86,7 +109,13 @@ class AnalysisAggregator(object):
 
 # Utility report functions
 
+
 def build_node_graph_affinities(dataset):
+    """
+    Produce networkX graph of each node based on affinity data
+    :param dataset: data as provided by the DataExporter
+    :return: networkX graph
+    """
     graph = nx.Graph()
     nodes = list(dataset.keys())
     for node in nodes:
@@ -105,7 +134,13 @@ def build_node_graph_affinities(dataset):
                     graph.add_edge(node, second_node, color=color, weight=abs(affinity))
     return graph
 
+
 def build_node_graph_friends(dataset):
+    """
+    Produce networkX graph of each node based on friend/enemy data
+    :param dataset: data as provided by the DataExporter
+    :return: networkX graph
+    """
     graph = nx.Graph()
     nodes = list(dataset.keys())
     for node in nodes:
@@ -122,7 +157,13 @@ def build_node_graph_friends(dataset):
                 graph.add_edge(node, second_node, color='r', weight = .1)
     return graph
 
+
 def save_graph(graph_sets, dpi=300):
+    """
+    :param graph_sets: tuple containing neworkX graph and name of file for which to save
+    :param dpi: dpi of image to save
+    :return: nothing
+    """
     for x in range(len(graph_sets)):
         normalize_weights = graph_sets[x][2]
         graph = graph_sets[x][0]
@@ -140,7 +181,19 @@ def save_graph(graph_sets, dpi=300):
         plt.savefig(name+".png", dpi=dpi)
         plt.close(fig)
 
+
 def save_line_graph(xvals, yvals, name, ylabel, xlabel, show = False, dpi=300):
+    """
+    Function to create and save a line graph
+    :param xvals: x values of graph
+    :param yvals: y values of graph
+    :param name: Title of graph and filename to save graph
+    :param ylabel: label for y axis
+    :param xlabel: label for x axis
+    :param show: whether to display the graph to screen
+    :param dpi: dpi of file to save
+    :return: nothing
+    """
     fig=plt.figure()
     plt.title(name)
     plt.plot(xvals, yvals)
