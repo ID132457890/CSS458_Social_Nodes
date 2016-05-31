@@ -11,16 +11,12 @@ def random_personalities(model, facets):    #Method to randomly initialized pers
             introvert(agent)
         if rand > 2 and rand <= 4:
             extrovert(agent)
-            pass
         if rand > 4 and rand <= 6:
             netrual(agent)
-            pass
         if rand > 6 and rand <= 8:
             creep(agent)
-            pass
-        if rand > 8 and rand <= 10:
+        if rand > 8 and rand <= 11:
             post_abuser(agent)
-            pass
 
 #---------------------------------------
 #The 5 sub categories for the randomization defintion above

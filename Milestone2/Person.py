@@ -14,7 +14,7 @@ import Post as Post
 spam_to_world_proportion = .05 # proportion of agents that certain users are allowed to spam to
 
 class Person(object):
-    def __init__(self, model, p_type=None location = None, friends_affinity = 150, enemies_affinity = -200,
+    def __init__(self, model, p_type=None, location = None, friends_affinity = 150, enemies_affinity = -200,
                  personality = None, online = False):
         """
         Create a person object
