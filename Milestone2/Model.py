@@ -339,7 +339,7 @@ def find_distance(agent1, agent2):
 
 if __name__ == "__main__":
     m = Model(time_to_run=20, num_agents=200, force_personalities=PersonalityShaping.personality_shaping_flexible,
-              visualizer = False, visualizerOptions=[V.VType.personalityGraphs])
+              visualizer = False, visualizerOptions=[])
 
     m.personality_shaping = {
         'ranges': 'proportional',
