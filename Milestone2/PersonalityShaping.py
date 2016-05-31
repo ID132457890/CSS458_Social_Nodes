@@ -4,7 +4,7 @@ import random
 # basic way to set all agents to a specific type
 #------------------
 
-def random_personalities(model):    #Method to randomly initialized personality
+def random_personalities(model, facets):    #Method to randomly initialized personality
     for agent in model.agents:      #types to 5 sub-categories
         rand = random.randint(0,11)
         if rand <= 2: 
