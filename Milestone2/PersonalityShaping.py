@@ -17,6 +17,21 @@ def random_personalities(model, facets):    #Method to randomly initialized pers
             creep(agent)
         if rand > 8 and rand <= 11:
             post_abuser(agent)
+"""
+Kevin - another way to do more or less the same thing:
+
+    m = Model(time_to_run=20, num_agents=200, force_personalities=PersonalityShaping.personality_shaping_flexible,
+              visualizer = False, visualizerOptions=[])
+
+    m.personality_shaping = {
+        'ranges': 'probabilistic',
+        'definitions': [(20, [PersonalityShaping.introvert]),
+                        (20, [PersonalityShaping.extrovert]),
+                        (20, [PersonalityShaping.netrual]),
+                        (20, [PersonalityShaping.creep]),
+                        (20, [PersonalityShaping.post_abuser])]
+        }
+"""
 
 #---------------------------------------
 #The 5 sub categories for the randomization defintion above
@@ -298,15 +313,60 @@ def personality_shaping_flexible(model):
     if not model.personality_shaping:
         raise Exception("Shaping configuration must be bound to model.personality_shaping before running model.")
     shape = model.personality_shaping
+    shape_definitions = shape['definitions']
+
     pro_idx = None
     if shape['ranges'] == 'proportional':
         pro_idx = True
     elif shape['ranges'] == 'absolute':
         pro_idx = False
+    elif shape['ranges'] == 'probabilistic':
+        # check to make sure all == 100%
+        total = 0
+        def_map = []
+        for definition in shape_definitions:
+            def_map.append(total)
+            total += definition[0]
+
+        # So assignment algorithm doesn't break, adding an endcap
+        def_map.append(101)
+
+        if total != 100:
+            raise Exception("All probabilistic entries must equal 100!")
+
+        for agent in model.agents:
+            r = random.randint(0, 100)
+            spot = 0
+            found_spot = False
+            while not found_spot:
+                if def_map[spot] <= r < def_map[spot+1]:
+                    found_spot = True
+                else:
+                    spot += 1
+
+            definition = shape_definitions[spot]
+
+            ptype = None
+
+            if len(definition) < 3:
+                indexer, settings = definition
+            else:
+                indexer, settings, set_dict = definition
+                if 'ptype' in set_dict:
+                    ptype = set_dict['ptype']
+
+            for setting in settings:
+                if type(setting) is tuple:
+                    setting[0](agent, setting[1])
+                else:
+                    setting(agent)
+            if ptype != None:
+                agent.p_type = ptype
+
+        return
     else:
         raise Exception("No indexing method specified in model.personality_shaping")
 
-    shape_definitions = shape['definitions']
     current_index = 0
     cumulative_percent = 0
     for definition in shape_definitions:
