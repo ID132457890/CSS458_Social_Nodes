@@ -352,6 +352,11 @@ class Visualizer(object):
             #self.pause()
     
     def addPersonalityTypes(self, agents):
+        """
+        Stores all of the needed data for each personality.
+        
+        agents: list of Person objects
+        """
         
         if len(self.acceptedTypes) == 0 or (VType.personalityGraphs in self.acceptedTypes):
             for agent in agents:
@@ -556,12 +561,16 @@ class Visualizer(object):
                     colors.append("#000000")
                 elif node.p_type == 5:
                     colors.append("#a0a0a0")
+                elif node.p_type == 6:
+                    colors.append("#990099")
+                elif node.p_type == 7:
+                    colors.append("#ff66b2")
             else:
                 colors.append("r")
         
         #if len(widths) != 0:
         pos=nx.fruchterman_reingold_layout(graph)
-        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
+        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=pos, width=widths, node_color=colors, \
         edge_color=edgeColors)
         
         self.mainGraphFig.show()
@@ -571,7 +580,12 @@ class Visualizer(object):
         patch3 = mpatches.Patch(color='#cccc00', label='Neutral')
         patch4 = mpatches.Patch(color='#000000', label='Creep')
         patch5 = mpatches.Patch(color='#a0a0a0', label='Post abuser')
-        plt.legend(handles=[patch1, patch2, patch3, patch4, patch5])
+        patch6 = mpatches.Patch(color='#990099', label='Friend-Dependent')
+        patch7 = mpatches.Patch(color='#ff66b2', label='Friend-Independent')
+        patch8 = mpatches.Patch(color='r', label='Offline')
+        plt.legend(handles=[patch1, patch2, patch3, patch4, patch5, patch6, patch7, patch8])
+        
+        plt.title("Nodes-connections graph")
             
         plt.pause(0.01)
             
@@ -722,7 +736,13 @@ class Visualizer(object):
         plt.pause(0.01)
         
     def updatePersonalityGraphs(self):
-        personalities = ["1", "2", "3", "4", "5", "6", "7"]
+        """
+        Shows the graph for all of the data grouped in personality categories.
+        
+        Shows bar graphs, where each personality is in the x axis.
+        """
+        
+        personalities = ["Introvert", "Extrovert", "Neutral", "Creep", "Post-Abuser", "Friend-Dep", "Friend-Indep"]
         
         plt.figure(self.personalityPostsSentFig.number)
         self.personalityPostsSentFig.clear()
