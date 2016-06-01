@@ -17,21 +17,6 @@ def random_personalities(model, facets):    #Method to randomly initialized pers
             creep(agent)
         if rand > 8 and rand <= 11:
             post_abuser(agent)
-"""
-Kevin - another way to do more or less the same thing:
-
-    m = Model(time_to_run=20, num_agents=200, force_personalities=PersonalityShaping.personality_shaping_flexible,
-              visualizer = False, visualizerOptions=[])
-
-    m.personality_shaping = {
-        'ranges': 'probabilistic',
-        'definitions': [(20, [PersonalityShaping.introvert]),
-                        (20, [PersonalityShaping.extrovert]),
-                        (20, [PersonalityShaping.netrual]),
-                        (20, [PersonalityShaping.creep]),
-                        (20, [PersonalityShaping.post_abuser])]
-        }
-"""
 
 #---------------------------------------
 #The 5 sub categories for the randomization defintion above
