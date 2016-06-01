@@ -37,6 +37,7 @@ class Person(object):
 
         self.affinity_map = {}
         self.p_type = p_type
+        self.posts_sent = 0
         self.friends = set()
         self.enemies = set()
         self.friends_affinity = friends_affinity
@@ -124,6 +125,7 @@ class Person(object):
             post = self.personality.create_post()
             if post is not None:
                 self.model.messages_sent += 1
+                self.posts_sent += 1
                 self.dispatch_post(post)
 
     def process_post(self, message):
