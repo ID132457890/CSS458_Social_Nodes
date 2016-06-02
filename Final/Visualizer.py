@@ -570,7 +570,7 @@ class Visualizer(object):
         
         #if len(widths) != 0:
         pos=nx.fruchterman_reingold_layout(graph)
-        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=pos, width=widths, node_color=colors, \
+        nx.draw(graph, ax=self.mainGraphFig.add_subplot(111), pos=positions, width=widths, node_color=colors, \
         edge_color=edgeColors)
         
         self.mainGraphFig.show()
